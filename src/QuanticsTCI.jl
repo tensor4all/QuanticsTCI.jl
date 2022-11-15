@@ -4,6 +4,7 @@ using ITensors
 
 export quantics_to_index
 export index_to_quantics
+export split_dimensions
 export binary_addition_mpo
 export binary_subtraction_mpo
 export kroneckerdelta_mpo
