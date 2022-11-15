@@ -29,15 +29,15 @@ using Test
     end
 
     @testset "quantics to index, 3d" begin
-        @test quantics_to_index([1 1 1 1]; numdimensions=3) == [1, 1, 1]
-        @test quantics_to_index([2 1 1 1]; numdimensions=3) == [2, 1, 1]
-        @test quantics_to_index([1 2 1 1]; numdimensions=3) == [3, 1, 1]
-        @test quantics_to_index([2 2 1 1]; numdimensions=3) == [4, 1, 1]
-        @test quantics_to_index([1 1 1 2]; numdimensions=3) == [9, 1, 1]
-        @test quantics_to_index([3 2 1 1]; numdimensions=3) == [3, 2, 1]
-        @test quantics_to_index([4 2 1 1]; numdimensions=3) == [4, 2, 1]
-        @test quantics_to_index([5 2 1 1]; numdimensions=3) == [3, 1, 2]
-        @test quantics_to_index([8 2 1 1]; numdimensions=3) == [4, 2, 2]
+        @test quantics_to_index([1 1 1 1]; d=3) == [1, 1, 1]
+        @test quantics_to_index([2 1 1 1]; d=3) == [2, 1, 1]
+        @test quantics_to_index([1 2 1 1]; d=3) == [3, 1, 1]
+        @test quantics_to_index([2 2 1 1]; d=3) == [4, 1, 1]
+        @test quantics_to_index([1 1 1 2]; d=3) == [9, 1, 1]
+        @test quantics_to_index([3 2 1 1]; d=3) == [3, 2, 1]
+        @test quantics_to_index([4 2 1 1]; d=3) == [4, 2, 1]
+        @test quantics_to_index([5 2 1 1]; d=3) == [3, 1, 2]
+        @test quantics_to_index([8 2 1 1]; d=3) == [4, 2, 2]
     end
 
     @testset "index to quantics, 3d" begin
@@ -62,7 +62,7 @@ using Test
                 2 .* [((y - 1) & 2^(j - 1)) != 0 for j in 1:n] .+
                 4 .* [((z - 1) & 2^(j - 1)) != 0 for j in 1:n]
             ) == q .- 1
-            @test quantics_to_index(q; numdimensions=3) == [x, y, z]
+            @test quantics_to_index(q; d=3) == [x, y, z]
         end
     end
 
