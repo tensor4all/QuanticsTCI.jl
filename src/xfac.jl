@@ -8,7 +8,17 @@ ENV["PYTHONPATH"] = "/somepath/xfac/python/"
 const xfacpy = PyNULL()
 
 function __init__()
-    copy!(xfacpy, pyimport("xfacpy"))
+    try
+        copy!(xfacpy, pyimport("xfacpy"))
+    catch e
+        if isa(e, PyCall.PyError)
+            # For CI, documentation, etc.
+            print("Did not find xfac. QTT functions will not be available.")
+            print(e)
+        else
+            rethrow()
+        end
+    end
 end
 
 mutable struct myTf
