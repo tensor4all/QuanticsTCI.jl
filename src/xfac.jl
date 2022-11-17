@@ -4,15 +4,8 @@ be able to find xfacpy. You probably have to add the path to xfac to PYTHONPATH
 before loading this module, like this:
 ENV["PYTHONPATH"] = "/somepath/xfac/python/"
 """
-module xfac_interface
-
-using PyCall
-using ITensors
-
-export qtt
 
 const xfacpy = PyNULL()
-
 
 function __init__()
     copy!(xfacpy, pyimport("xfacpy"))
@@ -86,7 +79,6 @@ function qtt_to_mps(qtt, siteindices...)
             Index(1, "link")
             [Index(size(t, 3), "link") for t in qtt]
         ]
-    print(links)
 
     qttmps[1] = ITensor(
         qtt[1],
@@ -108,6 +100,4 @@ function qtt_to_mps(qtt, siteindices...)
     )
 
     return qttmps
-end
-
 end
