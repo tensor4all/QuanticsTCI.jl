@@ -5,3 +5,5 @@
 
 .ipynb_checkpoints
 *.swp
+
+docs/build/

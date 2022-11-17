@@ -4,6 +4,7 @@ authors = ["Ritter.Marc <Ritter.Marc@physik.uni-muenchen.de> and contributors"]
 version = "0.1.0"
 
 [deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
