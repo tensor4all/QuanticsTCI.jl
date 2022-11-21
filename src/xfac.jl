@@ -35,13 +35,15 @@ function (funcobj::myTf)(x)
 end
 
 """
+    qtt(f::Function, localdim, firstpivot; cutoff, maxiter)
+
 Get a Tensor Train representation of a quantics function.
 
-f           function accepting an array of binary digits
-localdim    local dimension of the quantics indices, generally 2^d
-firstpivot  first pivot point
-cutoff      iteration will be stopped at this precision
-maxiter     maximum number of iterations
+ * `f`:             function accepting an array of binary digits
+ * `localdim`:      local dimension of the quantics indices, generally 2^d
+ * `firstpivot`:    first pivot point
+ * `cutoff`:        iteration will be stopped at this precision
+ * `maxiter`:       maximum number of iterations
 """
 function qtt(
     f::Function, localdim, firstpivot;
@@ -71,10 +73,12 @@ function qtt(
 end
 
 """
+    qtt_to_mps(qtt, siteindices...)
+
 Convert a quantics tensor train to an ITensor MPS
 
-qtt         Tensor train as an array of tensors
-siteindices Arrays of ITensor Index objects
+ * `qtt`            Tensor train as an array of tensors
+ * `siteindices`    Arrays of ITensor Index objects
 """
 function qtt_to_mps(qtt, siteindices...)
     n = length(qtt)

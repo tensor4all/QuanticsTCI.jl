@@ -3,6 +3,8 @@ module QuanticsTCI
 using ITensors
 using PyCall
 
+export qtt
+export qtt_to_mps
 export quantics_to_index
 export index_to_quantics
 export split_dimensions
