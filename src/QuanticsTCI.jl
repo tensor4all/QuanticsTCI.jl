@@ -11,10 +11,12 @@ export split_dimensions
 export binary_addition_mpo
 export binary_subtraction_mpo
 export kroneckerdelta_mpo
+export evaluate_mps
 
 include("quantics.jl")
 include("binaryops.jl")
 include("propagators.jl")
 include("xfac.jl")
+include("mps_util.jl")
 
 end
