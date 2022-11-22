@@ -24,6 +24,7 @@
 
         for i in 1:(2^m)
             q = index_to_quantics(i, m)
+            @test evaluate_mps(mps, siteinds(mps), q) == 2^(m - 1)
             @test evaluate_mps(mps, collect(zip(siteinds(mps), q))) == 2^(m - 1)
         end
     end
@@ -53,6 +54,7 @@
 
         for i in 1:(2^m)
             q = index_to_quantics(i, m)
+            @test evaluate_mps(mps, siteinds(mps), q) == all(q .== first(q))
             @test (
                 evaluate_mps(mps, collect(zip(siteinds(mps), q))) ==
                 all(q .== first(q))
