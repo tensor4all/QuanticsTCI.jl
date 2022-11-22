@@ -4,24 +4,10 @@
 CurrentModule = QuanticsTCI
 ```
 
+This module has two main functions:
+
+1. Provide access to `xfac` to get Tensor Cross Interpolations of functions and tensors. For this, see [`xfac` library](@ref).
+2. Translation into and out of quantics representation. For this, see [Quantics representation](@ref)
+
 ```@contents
-```
-
-## `xfac` library glue via python
-
-Calls the `xfac` library via python bindings.
-!!! warning
-    The installation used by `PyCall`
-    must be able to find `xfacpy`. You probably have to add the path to `xfac` to
-    `$PYTHONPATH` before loading this module, like this:
-    ```julia
-    ENV["PYTHONPATH"] = "/somepath/xfac/python/"
-    using QuanticsTCI
-    ```
-    For instructions on how to set up python, `PyCall` and `xfac` correctly, see
-    [Setup of `xfacpy`](@ref).
-
-```@docs
-QuanticsTCI.qtt
-QuanticsTCI.qtt_to_mps
 ```
