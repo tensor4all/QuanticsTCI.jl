@@ -1,5 +1,6 @@
 module QuanticsTCI
 
+using LinearAlgebra
 using ITensors
 using PyCall
 
@@ -16,5 +17,6 @@ include("binaryops.jl")
 include("propagators.jl")
 include("xfac.jl")
 include("mps_util.jl")
+include("MatrixCI.jl")
 
 end
