@@ -43,6 +43,7 @@
         @test n_rows(ci) == 10
         @test n_cols(ci) == 25
         @test size(ci) == (10, 25)
+        @test rank(ci) == 0
         @test ci[:, :] ≈ zeros(size(ci))
         for i in 1:10
             @test QuanticsTCI.row(ci, i) ≈ zeros(25)
@@ -81,6 +82,7 @@
         @test n_rows(ci) == 8
         @test n_cols(ci) == 5
         @test size(ci) == size(A)
+        @test rank(ci) == 3
 
         Apivot = A[row_indices, col_indices]
         @test pivot_matrix(ci) == Apivot
@@ -124,11 +126,14 @@
         @test_throws ArgumentError QuanticsTCI.find_new_pivot(A, ci, zeros(Int64, 0), [2, 3])
         @test_throws ArgumentError QuanticsTCI.find_new_pivot(A, ci, [1, 2], zeros(Int64, 0))
 
+        @test rank(ci) == 0
+
         add_pivot!(A, ci, (2, 3))
         @test ci.row_indices == [2]
         @test ci.col_indices == [3]
         @test ci.pivot_rows == fill(1.0, 1, 3)
         @test ci.pivot_cols == fill(1.0, 5, 1)
+        @test rank(ci) == 1
         for i in 1:5, j in 1:3
             @test QuanticsTCI.eval(ci, i, j) ≈ 1.0
             @test ci[i, j] ≈ 1.0
@@ -138,11 +143,13 @@
         @test ci.pivot_cols == fill(1.0, 5, 2)
         @test length(ci.row_indices) == 2
         @test length(ci.col_indices) == 2
+        @test rank(ci) == 2
         add_pivot!(A, ci, (QuanticsTCI.avail_rows(ci)[1], QuanticsTCI.avail_cols(ci)[1]))
         @test ci.pivot_rows == fill(1.0, 3, 3)
         @test ci.pivot_cols == fill(1.0, 5, 3)
         @test length(ci.row_indices) == 3
         @test length(ci.col_indices) == 3
+        @test rank(ci) == 3
     end
 
 
@@ -153,6 +160,9 @@
         @test local_error(A, ci) ≈ A
         @test QuanticsTCI.find_new_pivot(A, ci) == (3, 4)
         add_pivot!(A, ci)
+
+        @test ci ≈ MatrixCrossInterpolation(A, (3, 4))
+
         @test ci.row_indices == [3]
         @test ci.col_indices == [4]
         @test ci.pivot_rows ≈ 3.0 .* [2.0 4.0 8.0 16.0]
@@ -181,5 +191,25 @@
 
         @test_throws ArgumentError QuanticsTCI.find_new_pivot(A, ci)
         @test_throws ArgumentError add_pivot!(A, ci)
+    end
+
+    @testset "Cross interpolate smooth functions" begin
+        grid = range(-1, 1, length=21)
+
+        gauss = exp.(-grid .^ 2 .- grid' .^ 2)
+        cigauss = cross_interpolate(gauss)
+        @test rank(cigauss) == 1
+        @test n_rows(cigauss) == 21
+        @test n_cols(cigauss) == 21
+        @test cigauss.row_indices == [11]
+        @test cigauss.col_indices == [11]
+
+        lorentz = 1 ./ (1 .+ grid .^ 2 .+ grid' .^ 2)
+        cilorentz = cross_interpolate(lorentz, tolerance=1e-6, maxiter=10)
+        @test rank(cilorentz) == 5
+        @test n_rows(cilorentz) == 21
+        @test n_cols(cilorentz) == 21
+        @test Set(cilorentz.row_indices) == Set([11, 1, 5, 8, 3])
+        @test Set(cilorentz.col_indices) == Set([11, 1, 5, 8, 3])
     end
 end

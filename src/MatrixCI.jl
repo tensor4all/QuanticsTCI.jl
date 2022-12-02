@@ -60,6 +60,15 @@ mutable struct MatrixCrossInterpolation{T}
     ) where {T<:Number}
         return new{T}(row_indices, col_indices, pivot_cols, pivot_rows)
     end
+
+    function MatrixCrossInterpolation(
+        A::AbstractMatrix{T}, firstpivot
+    ) where {T<:Number}
+        return MatrixCrossInterpolation(
+            [firstpivot[1]], [firstpivot[2]],
+            A[:, [firstpivot[2]]], A[[firstpivot[1]], :]
+        )
+    end
 end
 
 function n_rows(ci::MatrixCrossInterpolation{T}) where {T}
@@ -174,6 +183,15 @@ end
 function Base.getindex(
     ci::MatrixCrossInterpolation{T}, i::Int, j::Int) where {T}
     return eval(ci, i, j)
+end
+
+function Base.isapprox(
+    lhs::MatrixCrossInterpolation{T}, rhs::MatrixCrossInterpolation{T}
+) where {T}
+    return (lhs.col_indices == rhs.col_indices) &&
+           (lhs.row_indices == rhs.row_indices) &&
+           Base.isapprox(lhs.pivot_cols, rhs.pivot_cols) &&
+           Base.isapprox(lhs.pivot_rows, rhs.pivot_rows)
 end
 
 function Base.Matrix(ci::MatrixCrossInterpolation{T}) where {T}
@@ -293,4 +311,20 @@ function add_pivot!(
     ci::MatrixCrossInterpolation{T}
 ) where {T}
     return add_pivot!(a, ci, find_new_pivot(a, ci))
+end
+
+function cross_interpolate(
+    a::AbstractMatrix{T};
+    tolerance=1e-6,
+    maxiter=200,
+    firstpivot=argmax(abs.(a))
+) where {T}
+    ci = MatrixCrossInterpolation(a, firstpivot)
+    for iter in 1:maxiter
+        pivoterror, newpivot = findmax(local_error(a, ci))
+        if pivoterror < tolerance
+            return ci
+        end
+        add_pivot!(a, ci, newpivot)
+    end
 end
