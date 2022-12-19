@@ -1,7 +1,11 @@
 module QuanticsTCI
 
+using TensorCrossInterpolation
 using ITensors
 using PyCall
+
+# To add methods to rank
+import LinearAlgebra: rank
 
 export qtt
 export qtt_to_mps
