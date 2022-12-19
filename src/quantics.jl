@@ -62,10 +62,10 @@ function quantics_to_index(
 ) where {N}
     # Must be signed int to avoid https://github.com/JuliaLang/julia/issues/44895
     result = zeros(Int, d)
-
+    n = length(bitlist)
     dimensions_bitmask = 2 .^ (0:(d-1))
     for i in eachindex(bitlist)
-        result .+= (((bitlist[i] - 1) .& dimensions_bitmask) .!= 0) .* (1 << (i - 1))
+        result .+= (((bitlist[i] - 1) .& dimensions_bitmask) .!= 0) .* (1 << (n - i))
     end
     return result .+ 1
 end
@@ -79,7 +79,7 @@ Convert an integer to its binary representation.
  * `numdigits`   how many digits to zero-pad to
 """
 function binary_representation(index::Int; numdigits=8)
-    return [(index & (1 << (i - 1))) != 0 for i in 1:numdigits]
+    return [(index & (1 << (numdigits - i))) != 0 for i in 1:numdigits]
 end
 
 """
