@@ -63,13 +63,14 @@ function testberry(q::Integer, lambdaSO::Float64, nquantics=5:10)
     BZedgey = pi / sqrt(3)
     results = BerryResult[]
     for nq in nquantics
-        kxvals = collect(range(-BZedgex, BZedgex; length=2^nq))
-        kyvals = collect(range(-BZedgey, BZedgey; length=2^nq))
+        ndiscretization = 2^nq
+        kxvals = collect(range(-BZedgex, BZedgex; length=ndiscretization)) .+ (BZedgex / ndiscretization)
+        kyvals = collect(range(-BZedgey, BZedgey; length=ndiscretization)) .+ (BZedgey / ndiscretization)
         push!(
             results,
             BerryResult(
                 nq,
-                getberryqtt(nq, kxvals, kyvals, 2q, lattice, q, lambdaSO)...
+                getberryqtt(nq, kxvals, kyvals, 2q, lattice, q, lambdaSO, tolerance=1e-8)...
             ))
         println("Finished nq = $nq. Chern number is $(last(results).chernnumber)")
     end
