@@ -5,5 +5,10 @@
 
 .ipynb_checkpoints
 *.swp
+.DS_Store
 
 docs/build/
+
+*.jld2
+*.pdf
+example/chern/*_results*/

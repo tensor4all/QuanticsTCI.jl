@@ -1,7 +1,8 @@
 function displayhamiltonian(
     ax,
     H::Matrix{Float64},
-    lattice::TCI.IndexSet,
+    lattice::TCI.IndexSet;
+    vmax::Float64=maximum(abs.(H)),
     cm=get_cmap("Purples")
 )
     ax.set_aspect(1)
@@ -16,7 +17,7 @@ function displayhamiltonian(
     coords = realspacecoordinates.(lattice.fromint)
     for (i, ri) in enumerate(coords)
         for (j, rj) in enumerate(coords)
-            value = H[i, j] / maximum(abs.(H))
+            value = H[i, j] / vmax
             ax.plot(
                 [ri[1], rj[1]], [ri[2], rj[2]],
                 color=cm(value),

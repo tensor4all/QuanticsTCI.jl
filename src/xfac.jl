@@ -47,11 +47,12 @@ Get a Tensor Train representation of a quantics function.
 """
 function qtt(
     f::Function, localdim, firstpivot;
-    cutoff=1e-12, maxiter=200)
+    cutoff=1e-12, maxiter=200, verbose=false)
 
     params = xfacpy.TensorCIParam()
     # Convert to zero-indexing
     params.pivot1 = firstpivot .- 1
+    params.pivotSearch = xfacpy.PivotSearch.full
     ci = xfacpy.TensorCI(myTf(f), localdim, length(firstpivot), params)
 
     ranks = zeros(Int, maxiter)
@@ -64,7 +65,7 @@ function qtt(
             ranks = ranks[1:i]
             errors = errors[1:i]
             break
-        elseif i % 10 == 0
+        elseif verbose && (i % 10 == 0)
             print("$i\t$(ranks[i])\t$(errors[i])\n")
         end
     end
@@ -83,15 +84,15 @@ Convert a quantics tensor train to an ITensor MPS
 function qtt_to_mps(qtt, siteindices...)
     n = length(qtt)
 
-    if siteindices === nothing
-        siteindices = [Index(size(t, 2), "site") for t in qtt]
+    if isempty(siteindices)
+        siteindices = [[Index(size(t, 2), "site") for t in qtt]]
     end
 
     qttmps = MPS(n)
     links =
         [
-            Index(1, "link")
-            [Index(size(t, 3), "link") for t in qtt]
+            Index(1, "link"),
+            [Index(size(t, 3), "link") for t in qtt]...
         ]
 
     qttmps[1] = ITensor(
