@@ -9,5 +9,6 @@
 
 docs/build/
 
+*.jld2
 *.pdf
 example/chern/*_results*/
