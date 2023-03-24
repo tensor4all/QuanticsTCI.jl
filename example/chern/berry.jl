@@ -47,7 +47,7 @@ function berrycurvature_derivatives(
 )
     E, U = eigen(Hermitian(H))
 
-    return -2 * sum(imag(
+    return -1 * sum(imag(
         (
             (U[:, v]' * Hderivative1 * U[:, c]) * (U[:, c]' * Hderivative2 * U[:, v]) -
             (U[:, v]' * Hderivative2 * U[:, c]) * (U[:, c]' * Hderivative1 * U[:, v])
