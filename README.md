@@ -68,7 +68,7 @@ qfinterleaved = QuanticsFunctionInterleaved{Float64}(f, ndims)
 qffused = QuanticsFunctionFused{Float64}(f, ndims)
 ```
 All of these objects are suitable for passing to the `TensorCrossInterpolation.crossinterpolate` function. A QTCI of a function `f` can be obtained like this:
-```
+```julia
 R = 5
 f(u) = 1 / (1 + u' * u)
 qfinterleaved = QuanticsFunctionInterleaved{Float64}(f, 4)
