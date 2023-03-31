@@ -6,17 +6,6 @@
 This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format.
 
 ## Installation
-Once the module has been published, the following will install QuanticsTCI.jl:
-
-```julia
-julia> using Pkg; Pkg.add("QuanticsTCI.jl")
-```
-
-This module depends on:
-- [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl)
-- [ITensors.jl](https://github.com/ITensor/ITensors.jl)
-
-Due to ITensors, Julia 1.6 or newer is required.
 
 ---
 
@@ -37,34 +26,48 @@ julia> using QuanticsTCI
 ```
 ---
 
+Once the module has been published, the following will install QuanticsTCI.jl:
+
+```julia
+julia> using Pkg; Pkg.add("QuanticsTCI.jl")
+```
+
+This module depends on:
+- [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl)
+- [ITensors.jl](https://github.com/ITensor/ITensors.jl)
+
+Due to ITensors, Julia 1.6 or newer is required.
+
 ## Usage
 
 The main functionality of this package is in the functions `quantics_to_index` and `index_to_quantics`. These translate between linear and quantics representation. For multivariate functions, you have a choice between the *interleaved* and *fused* representation (see QTCI paper [arXiv:2303.11819](http://arxiv.org/abs/2303.11819)). For the *interleaved* representation with `R` bits in each dimension, use
 ```julia
 sigma = index_to_quantics_interleaved([u1, u2, u3], R)
-[u1, u2, u3] = quantics_to_index_interleaved(sigma, 3)
+[u1, u2, u3] = quantics_to_index_interleaved(sigma, n)
 ```
+where `n` is the number of dimensions.
+
 For the *fused* representation, the methods are very similar:
 ```julia
 sigma = index_to_quantics_fused([u1, u2, u3], R)
-[u1, u2, u3] = quantics_to_index_fused(sigma, 3)
+[u1, u2, u3] = quantics_to_index_fused(sigma, n)
 ```
 Further information can be found in the corresponding docstrings.
 
-For convenience, function wrappers are available. If `f` is a function of a single parameter, a quantics version of `f` can be obtained by
+For convenience, function wrappers are available. If `f` is a function of a single parameter, a quantics version `qf` can be obtained by
 ```julia
 qf = QuanticsFunction{Float64}(f)
 ```
-Note that the return type of `f` (`Float64` in this case) has to be specified. called like a normal function, e.g. 
+Note that the return type of `f` (`Float64` in this case) has to be specified. `qf` can be called like a normal function, and takes a list of quantics indices as its only parameter.
 ```julia
 value = f([1, 2, 1, 1, 2, 1])
 ```
-For multivariate functions `f`, use `QuanticsFunctionInterleaved` or `QuanticsFunctionFused`. In addition to `f`, specifify the number of dimensions `ndims`:
+For multivariate functions `f`, use `QuanticsFunctionInterleaved` or `QuanticsFunctionFused`. In addition to `f`, the number of dimensions `ndims` has to be specified:
 ```julia
 qfinterleaved = QuanticsFunctionInterleaved{Float64}(f, ndims)
 qffused = QuanticsFunctionFused{Float64}(f, ndims)
 ```
-All of these are suitable for passing to the `TensorCrossInterpolation.crossinterpolate` function. Note that the resulting QTCI / QTT takes parameters in quantics form, e.g.
+All of these objects are suitable for passing to the `TensorCrossInterpolation.crossinterpolate` function. A QTCI of a function `f` can be obtained like this:
 ```
 R = 5
 f(u) = 1 / (1 + u' * u)
@@ -76,6 +79,7 @@ println("Exact value: $value")
 qttapprox = qtt(index_to_quantics_interleaved([1, 2, 3, 4], R))
 println("QTT approximated value: $qttapprox")
 ```
+Note that the resulting QTCI / QTT takes parameters in quantics form.
 A convenience function that encapsulates the above code block in a single call is being worked on.
 
 ## Related libraries
