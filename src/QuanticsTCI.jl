@@ -13,6 +13,7 @@ export split_dimensions, merge_dimensions,
     interleave_dimensions, deinterleave_dimensions
 export binary_addition_mpo, binary_subtraction_mpo, kroneckerdelta_mpo
 export evaluate_mps
+export QuanticsFunction, QuanticsFunctionFused, QuanticsFunctionInterleaved
 
 include("quantics.jl")
 include("binaryops.jl")

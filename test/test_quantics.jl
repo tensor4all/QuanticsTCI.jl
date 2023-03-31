@@ -133,3 +133,32 @@
         end
     end
 end
+
+@testset "quantics function wrappers" begin
+    f(u) = u
+
+    qf = QuanticsFunction{Vector{Int}}(f)
+    for i in 1:10
+        @test qf(index_to_quantics(i, 4)) == [i]
+    end
+
+    qfinterleaved = QuanticsFunctionInterleaved{Vector{Int}}(f, 3)
+    for i in 1:10
+        for j in 1:10
+            for k in 1:10
+                qindex = interleave_dimensions(index_to_quantics.([i, j, k], 4)...)
+                @test qfinterleaved(qindex) == [i, j, k]
+            end
+        end
+    end
+
+    qffused = QuanticsFunctionFused{Vector{Int}}(f, 3)
+    for i in 1:10
+        for j in 1:10
+            for k in 1:10
+                qindex = merge_dimensions(index_to_quantics.([i, j, k], 4)...)
+                @test qffused(qindex) == [i, j, k]
+            end
+        end
+    end
+end
