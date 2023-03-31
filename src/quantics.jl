@@ -55,17 +55,17 @@ function deinterleave_dimensions(bitlist, d)
 end
 
 """
-    quantics_to_index(
+    quantics_to_index_fused(
         bitlist::Union{Array{Int},NTuple{N,Int}};
         d=1
     ) where {N}
 
-Convert a d-dimensional index from quantics representation to d Integers.
+Convert a d-dimensional index from fused quantics representation to d Integers.
 
  * `bitlist`     binary representation
  * `d`           number of dimensions
 """
-function quantics_to_index(
+function quantics_to_index_fused(
     bitlist::Union{Array{Int},NTuple{N,Int}};
     d=1
 ) where {N}
@@ -80,6 +80,23 @@ function quantics_to_index(
 end
 
 """
+    quantics_to_index(
+        bitlist::Union{Array{Int},NTuple{N,Int}};
+        d=1
+    ) where {N}
+
+Convert a d-dimensional index from fused quantics representation to d Integers.
+
+ * `bitlist`     binary representation
+ * `d`           number of dimensions
+"""
+function quantics_to_index(
+    bitlist::Union{Array{Int},NTuple{N,Int}};
+    d=1
+) where {N}
+    return quantics_to_index_fused(bitlist, d=d)
+end
+"""
     binary_representation(index::Int; numdigits=8)
 
 Convert an integer to its binary representation.
@@ -92,15 +109,25 @@ function binary_representation(index::Int; numdigits=8)
 end
 
 """
-    index_to_quantics(indices::Array{Int}, n::Int)
+    index_to_quantics_fused(indices::Array{Int}, n::Int)
 
-Convert d indices to quantics representation with n digits.
+Convert d indices to fused quantics representation with n digits.
 """
-function index_to_quantics(indices::Array{Int}, n::Int)
+function index_to_quantics_fused(indices::Array{Int}, n::Int)
     result = [binary_representation(indices[d] - 1; numdigits=n) * 2^(d - 1)
               for d in eachindex(indices)]
     return [sum(r[i] for r in result) for i in 1:n] .+ 1
 end
+
+"""
+    index_to_quantics(indices::Array{Int}, n::Int)
+
+Convert d indices to fused quantics representation with n digits.
+"""
+function index_to_quantics(indices::Array{Int}, n::Int)
+    return index_to_quantics_fused(indices, n)
+end
+
 
 """
     index_to_quantics(index::Int, n::Int)
@@ -109,6 +136,14 @@ Convert a single index to quantics representation.
 """
 function index_to_quantics(index::Int, n::Int)
     return index_to_quantics([index], n)
+end
+
+function index_to_quantics_interleaved(indices::Array{Int}, n::Int)
+    return interleave_dimensions([index_to_quantics(i, n) for i in indices]...)
+end
+
+function quantics_to_index_interleaved(bitlist::Array{Int}, d::Int)
+    return [quantics_to_index(q)[1] for q in deinterleave_dimensions(bitlist, d)]
 end
 
 @doc raw"""
@@ -124,6 +159,10 @@ For multivariate ``f``, see [`QuanticsFunctionInterleaved`](@ref) or [`QuanticsF
 """
 struct QuanticsFunction{ValueType}
     f::Function
+end
+
+function Base.broadcastable(qf::QuanticsFunction{ValueType}) where ValueType
+    return Ref(qf)
 end
 
 function (qf::QuanticsFunction{ValueType})(q::AbstractVector{Int})::ValueType where {ValueType}
@@ -149,18 +188,26 @@ function (qf::QuanticsFunctionInterleaved{ValueType})(q::AbstractVector{Int})::V
     return qf.f([quantics_to_index(s)[1] for s in qvec])
 end
 
+function Base.broadcastable(qf::QuanticsFunctionInterleaved{ValueType}) where ValueType
+    return Ref(qf)
+end
+
 @doc raw"""
     struct QuanticsFunctionFused{ValueType} <: QuanticsFunction{ValueType}
 
 Wrapper to decode the argument of a multivariate function from the *fused* quantics representation into "normal" form (see quantics TCI paper). Given ``f(u)`` with ``ndims`` dimensions, the quantics function can be created by
 ```julia
-qf = QuanticsFunctionInterleaved{Float64}(f, ndims)
+qf = QuanticsFunctionFused{Float64}(f, ndims)
 ```
 For example, the argument of `qf([3, 4, 1])` is "split" to `[1, 2, 1]` and `[2, 2, 1]`, which are then decoded separately to `2` and `6`; the return value is `f([2, 6])`.
 """
 struct QuanticsFunctionFused{ValueType}
     f::Function
     ndims::Int
+end
+
+function Base.broadcastable(qf::QuanticsFunctionFused{ValueType}) where ValueType
+    return Ref(qf)
 end
 
 function (qf::QuanticsFunctionFused{ValueType})(q::AbstractVector{Int})::ValueType where {ValueType}
