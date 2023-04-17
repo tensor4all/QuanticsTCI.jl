@@ -1,10 +1,10 @@
 @testset "quantics representation" begin
     @testset "quantics to index, 1d" begin
-        @test quantics_to_index([1 1 1 1]) == [1]
-        @test quantics_to_index([1 1 1 2]) == [2]
-        @test quantics_to_index([1 1 2 1]) == [3]
-        @test quantics_to_index([1 1 2 2]) == [4]
-        @test quantics_to_index([2 1 1 1]) == [9]
+        @test quantics_to_index([1 1 1 1]) == 1
+        @test quantics_to_index([1 1 1 2]) == 2
+        @test quantics_to_index([1 1 2 1]) == 3
+        @test quantics_to_index([1 1 2 2]) == 4
+        @test quantics_to_index([2 1 1 1]) == 9
     end
 
     @testset "index to quantics, 1d" begin
@@ -21,20 +21,20 @@
         for i in 1:npoints
             q = index_to_quantics(i, n)
             @test [((i - 1) & 2^(n - j)) != 0 for j in 1:n] == q .- 1
-            @test quantics_to_index(q) == [i]
+            @test quantics_to_index(q) == i
         end
     end
 
     @testset "quantics to index, 3d" begin
-        @test quantics_to_index([1 1 1 1]; d=3) == [1, 1, 1]
-        @test quantics_to_index([1 1 1 2]; d=3) == [2, 1, 1]
-        @test quantics_to_index([1 1 2 1]; d=3) == [3, 1, 1]
-        @test quantics_to_index([1 1 2 2]; d=3) == [4, 1, 1]
-        @test quantics_to_index([2 1 1 1]; d=3) == [9, 1, 1]
-        @test quantics_to_index([1 1 2 3]; d=3) == [3, 2, 1]
-        @test quantics_to_index([1 1 2 4]; d=3) == [4, 2, 1]
-        @test quantics_to_index([1 1 2 5]; d=3) == [3, 1, 2]
-        @test quantics_to_index([1 1 2 8]; d=3) == [4, 2, 2]
+        @test quantics_to_index([1 1 1 1], 3) == [1, 1, 1]
+        @test quantics_to_index([1 1 1 2], 3) == [2, 1, 1]
+        @test quantics_to_index([1 1 2 1], 3) == [3, 1, 1]
+        @test quantics_to_index([1 1 2 2], 3) == [4, 1, 1]
+        @test quantics_to_index([2 1 1 1], 3) == [9, 1, 1]
+        @test quantics_to_index([1 1 2 3], 3) == [3, 2, 1]
+        @test quantics_to_index([1 1 2 4], 3) == [4, 2, 1]
+        @test quantics_to_index([1 1 2 5], 3) == [3, 1, 2]
+        @test quantics_to_index([1 1 2 8], 3) == [4, 2, 2]
     end
 
     @testset "index to quantics, 3d" begin
@@ -60,7 +60,7 @@
                 2 .* [((y - 1) & 2^(n - j)) != 0 for j in 1:n] .+
                 4 .* [((z - 1) & 2^(n - j)) != 0 for j in 1:n]
             ) == q .- 1
-            @test quantics_to_index(q; d=3) == [x, y, z]
+            @test quantics_to_index(q, 3) == [x, y, z]
         end
     end
 
@@ -149,9 +149,9 @@ end
 @testset "quantics function wrappers" begin
     f(u) = u
 
-    qf = QuanticsFunction{Vector{Int}}(f)
+    qf = QuanticsFunction{Int}(f)
     for i in 1:10
-        @test qf(index_to_quantics(i, 4)) == [i]
+        @test qf(index_to_quantics(i, 4)) == i
     end
 
     qfinterleaved = QuanticsFunctionInterleaved{Vector{Int}}(f, 3)

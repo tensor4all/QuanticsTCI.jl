@@ -1,14 +1,28 @@
 """
+    module UnfoldingSchemes
+
+Contains an enum to choose between interleaved and fused representation during quantics
+conversion / unfolding. Choose between `UnfoldingSchemes.interleaved` and
+`UnfoldingSchemes.fused`.
+"""
+module UnfoldingSchemes
+@enum UnfoldingScheme begin
+    interleaved
+    fused
+end
+end
+
+"""
     fuse_dimensions(bitlists...)
 
 Merge d bitlists that represent a quantics index into a bitlist where each bit
-has dimension 2^d. This merges legs for different dimensions, but equal length
-scale.
+has dimension 2^d. This fuses legs for different dimensions that have equal length
+scale (see QTCI paper).
+
+Inverse of [`split_dimensions`](@ref).
 """
 function fuse_dimensions(bitlists...)
-    return sum(
-        [(bitlists[d] .- 1) .* (2^(d - 1)) for d in eachindex(bitlists)];
-        dims=1)[1] .+ 1
+    return sum([(bitlists[d] .- 1) .* (2^(d - 1)) for d in eachindex(bitlists)]) .+ 1
 end
 
 """
@@ -24,7 +38,8 @@ end
     split_dimensions(bitlist, d)
 
 Split up a merged bitlist with bits of dimension 2^d into d bitlists where each
-bit has dimension 2. This is the inverse of `merge_dimensions`.
+bit has dimension 2.
+Inverse of [`fuse_dimensions`](@ref).
 """
 function split_dimensions(bitlist, d)
     dimensions_bitmask = 2 .^ (0:(d-1))
@@ -38,7 +53,8 @@ end
     interleave_dimensions(bitlists...)
 
 Interleaves the indices of all bitlists into one long bitlist. Use this for
-quantics representation of multidimensional objects without merging indices.
+quantics representation of multidimensional objects without fusing indices.
+Inverse of [`deinterleave_dimensions`](@ref).
 """
 function interleave_dimensions(bitlists...)
     return [bitlists[d][i] for i in eachindex(bitlists[1]) for d in eachindex(bitlists)]
@@ -48,7 +64,7 @@ end
     deinterleave_dimensions(bitlist, d)
 
 Reverses the interleaving of bits, i.e. yields bitlists for each dimension from
-a long interleaved bitlist. Inverse of `interleave_dimensions()`.
+a long interleaved bitlist. Inverse of [`interleave_dimensions`](@ref).
 """
 function deinterleave_dimensions(bitlist, d)
     return [bitlist[i:d:end] for i in 1:d]
@@ -56,18 +72,19 @@ end
 
 """
     quantics_to_index_fused(
-        bitlist::Union{Array{Int},NTuple{N,Int}};
-        d=1
+        bitlist::Union{Array{Int},NTuple{N,Int}},
+        d::Int
     ) where {N}
 
 Convert a d-dimensional index from fused quantics representation to d Integers.
 
- * `bitlist`     binary representation
- * `d`           number of dimensions
+* `bitlist`     binary representation
+* `d`           number of dimensions
+
+See also [`quantics_to_index_interleaved`](@ref).
 """
 function quantics_to_index_fused(
-    bitlist::Union{Array{Int},NTuple{N,Int}};
-    d=1
+    bitlist::Union{Array{Int},NTuple{N,Int}}, d::Int
 ) where {N}
     # Must be signed int to avoid https://github.com/JuliaLang/julia/issues/44895
     result = zeros(Int, d)
@@ -80,22 +97,54 @@ function quantics_to_index_fused(
 end
 
 """
-    quantics_to_index(
-        bitlist::Union{Array{Int},NTuple{N,Int}};
-        d=1
+    quantics_to_index_interleaved(bitlist::Array{Int}, d::Int)
+
+Convert a d-dimensional index from interleaved quantics representation to d Integers.
+
+* `bitlist`     binary representation
+* `d`           number of dimensions
+
+See also [`quantics_to_index_fused`](@ref).
+"""
+function quantics_to_index_interleaved(bitlist::Array{Int}, d::Int)
+    return [quantics_to_index(q)[1] for q in deinterleave_dimensions(bitlist, d)]
+end
+
+"""
+    function quantics_to_index(
+        bitlist::Union{Array{Int},NTuple{N,Int}}, d::Int;
+        unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.fused
     ) where {N}
 
-Convert a d-dimensional index from fused quantics representation to d Integers.
+Convert a d-dimensional index from quantics representation to d Integers. Choose between
+fused and interleaved representation.
 
- * `bitlist`     binary representation
- * `d`           number of dimensions
+* `bitlist`     binary representation
+* `d`           number of dimensions
+* `unfoldingscheme`    Choose fused or interleaved representation from [`UnfoldingSchemes`](@ref).
+
+See also [`quantics_to_index_fused`](@ref), [`quantics_to_index_interleaved`](@ref).
 """
 function quantics_to_index(
-    bitlist::Union{Array{Int},NTuple{N,Int}};
-    d=1
+    bitlist::Union{Array{Int},NTuple{N,Int}}, d::Int;
+    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.fused
 ) where {N}
-    return quantics_to_index_fused(bitlist, d=d)
+    if unfoldingscheme == UnfoldingSchemes.fused
+        return quantics_to_index_fused(bitlist, d)
+    else
+        return quantics_to_index_interleaved(bitlist, d)
+    end
 end
+
+"""
+    quantics_to_index(bitlist::Union{Array{Int},NTuple{N,Int}})
+
+Convert a 1d index from quantics representation to a single integer.
+"""
+function quantics_to_index(bitlist::Union{Array{Int},NTuple{N,Int}})::Int where {N}
+    return quantics_to_index(bitlist, 1)[1]
+end
+
 """
     binary_representation(index::Int; numdigits=8)
 
@@ -119,15 +168,25 @@ function index_to_quantics_fused(indices::Array{Int}, n::Int)
     return [sum(r[i] for r in result) for i in 1:n] .+ 1
 end
 
+function index_to_quantics_interleaved(indices::Array{Int}, n::Int)
+    return interleave_dimensions([index_to_quantics(i, n) for i in indices]...)
+end
+
 """
     index_to_quantics(indices::Array{Int}, n::Int)
 
 Convert d indices to fused quantics representation with n digits.
 """
-function index_to_quantics(indices::Array{Int}, n::Int)
-    return index_to_quantics_fused(indices, n)
+function index_to_quantics(
+    indices::Array{Int}, n::Int;
+    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.fused
+)
+    if unfoldingscheme == UnfoldingSchemes.fused
+        return index_to_quantics_fused(indices, n)
+    else
+        return index_to_quantics_interleaved(indices, n)
+    end
 end
-
 
 """
     index_to_quantics(index::Int, n::Int)
@@ -136,14 +195,6 @@ Convert a single index to quantics representation.
 """
 function index_to_quantics(index::Int, n::Int)
     return index_to_quantics([index], n)
-end
-
-function index_to_quantics_interleaved(indices::Array{Int}, n::Int)
-    return interleave_dimensions([index_to_quantics(i, n) for i in indices]...)
-end
-
-function quantics_to_index_interleaved(bitlist::Array{Int}, d::Int)
-    return [quantics_to_index(q)[1] for q in deinterleave_dimensions(bitlist, d)]
 end
 
 @doc raw"""
