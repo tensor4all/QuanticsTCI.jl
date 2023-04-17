@@ -54,6 +54,7 @@
         npoints = 2^n
         for x in 1:npoints, y in 1:npoints, z in 1:npoints
             q = index_to_quantics([x, y, z], n)
+            @test q == index_to_quantics_fused([x, y, z], n)
             @test (
                 1 .* [((x - 1) & 2^(n - j)) != 0 for j in 1:n] .+
                 2 .* [((y - 1) & 2^(n - j)) != 0 for j in 1:n] .+
@@ -130,6 +131,46 @@
         for i1 in 1:np, i2 in 1:np, i3 in 1:np, i4 in 1:np
             q = [i1, i2, i3, i4]
             @test q == interleave_dimensions(deinterleave_dimensions(q, 2)...)
+        end
+    end
+
+    @testset "fuse and interleave function wrappers are consistent" begin
+        n = 4
+        np = 2^n
+        for i1 in 1:np, i2 in 1:np
+            q1 = index_to_quantics(i1, n)
+            q2 = index_to_quantics(i2, n)
+            @test fuse_dimensions(q1, q2) == index_to_quantics_fused([i1, i2], n)
+            @test interleave_dimensions(q1, q2) == index_to_quantics_interleaved([i1, i2], n)
+        end
+    end
+end
+
+@testset "quantics function wrappers" begin
+    f(u) = u
+
+    qf = QuanticsFunction{Vector{Int}}(f)
+    for i in 1:10
+        @test qf(index_to_quantics(i, 4)) == [i]
+    end
+
+    qfinterleaved = QuanticsFunctionInterleaved{Vector{Int}}(f, 3)
+    for i in 1:10
+        for j in 1:10
+            for k in 1:10
+                qindex = interleave_dimensions(index_to_quantics.([i, j, k], 4)...)
+                @test qfinterleaved(qindex) == [i, j, k]
+            end
+        end
+    end
+
+    qffused = QuanticsFunctionFused{Vector{Int}}(f, 3)
+    for i in 1:10
+        for j in 1:10
+            for k in 1:10
+                qindex = merge_dimensions(index_to_quantics.([i, j, k], 4)...)
+                @test qffused(qindex) == [i, j, k]
+            end
         end
     end
 end
