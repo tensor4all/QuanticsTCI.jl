@@ -168,14 +168,27 @@ function index_to_quantics_fused(indices::Array{Int}, n::Int)
     return [sum(r[i] for r in result) for i in 1:n] .+ 1
 end
 
+"""
+    index_to_quantics_fused(indices::Array{Int}, n::Int)
+
+Convert d indices to interleaved quantics representation with n digits.
+"""
 function index_to_quantics_interleaved(indices::Array{Int}, n::Int)
     return interleave_dimensions([index_to_quantics(i, n) for i in indices]...)
 end
 
 """
-    index_to_quantics(indices::Array{Int}, n::Int)
+    function index_to_quantics(
+        indices::Array{Int}, n::Int;
+        unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.fused
+    )
 
-Convert d indices to fused quantics representation with n digits.
+Convert d indices to fused or interleaved quantics representation with n digits, depending on unfoldingscheme.
+
+Arguments:
+* `indices::Array{Int}`: an Array of quantics indices.
+* `n::Int`: The number of binary digits in the quantics representation; i.e. the length of the tensor train (MPS) for a quantics tensor train decomposition.
+* `unfoldingscheme`: Either `UnfoldingSchemes.fused` or `UnfoldingSchemes.interleaved` to choose between fused and interleaved quantics representation.
 """
 function index_to_quantics(
     indices::Array{Int}, n::Int;
