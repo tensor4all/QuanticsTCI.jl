@@ -169,7 +169,7 @@ function index_to_quantics_fused(indices::Array{Int}, n::Int)
 end
 
 """
-    index_to_quantics_fused(indices::Array{Int}, n::Int)
+    index_to_quantics_interleaved(indices::Array{Int}, n::Int)
 
 Convert d indices to interleaved quantics representation with n digits.
 """
