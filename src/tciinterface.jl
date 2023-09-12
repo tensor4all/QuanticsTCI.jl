@@ -62,5 +62,10 @@ function quanticscrossinterpolate(
     initialpivots::AbstractVector=[1];
     kwargs...
 ) where {ValueType}
-    return quanticscrossinterpolate(ValueType, f, [xvals], [initialpivots]; kwargs...)
+    return quanticscrossinterpolate(
+        ValueType,
+        x -> f(first(x)),
+        [xvals],
+        [initialpivots];
+        kwargs...)
 end
