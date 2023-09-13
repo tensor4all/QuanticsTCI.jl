@@ -34,6 +34,33 @@ function quantics_to_x(
     return [x[i] for (x, i) in zip(xvals, indices)]
 end
 
+@doc raw"""
+    function quanticscrossinterpolate(
+        ::Type{ValueType},
+        f,
+        xvals::AbstractVector{<:AbstractVector},
+        initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, length(xvals))];
+        unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
+        kwargs...
+    ) where {ValueType}
+
+Interpolate a function ``f(\mathbf{x})`` as a quantics tensor train. The tensor train itself is constructed using the 2-site tensor cross interpolation algorithm implemented in [`TensorCrossInterpolation.crossinterpolate2`](https://tensors4fields.gitlab.io/tensorcrossinterpolation.jl/dev/documentation/#TensorCrossInterpolation.crossinterpolate2-Union{Tuple{N},%20Tuple{ValueType},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}}},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}},%20Vector{Vector{Int64}}}}%20where%20{ValueType,%20N}).
+
+Arguments:
+- `ValueType` is the return type of `f`. Automatic inference is too error-prone.
+- `f` is the function to be interpolated. `f` may take multiple arguments. The return type should be `ValueType`.
+- `xvals` is a vector of discretization grids, where the `i`th grid corresponds to the `i`th argument of `f`.
+- `initialpivots` is a vector of pivots to be used for initialization. Default: `[[1, 1, ...]]`.
+- `unfoldingscheme` determines whether the *interleaved* or *fused* representation is used. (See the [quantics TCI paper](http://arxiv.org/abs/2303.11819).)
+
+All other arguments are forwareded to `crossinterpolate2`. Most importantly:
+- `tolerance::Float64` is a float specifying the target tolerance for the interpolation. Default: `1e-8`.
+- `pivottolerance::Float64` is a float that specifies the tolerance for adding new pivots, i.e. the truncation of tensor train bonds. It should be <= tolerance, otherwise convergence may be impossible. Default: `tolerance`.
+- `maxbonddim::Int` specifies the maximum bond dimension for the TCI. Default: `typemax(Int)`, i.e. effectively unlimited.
+- `maxiter::Int` is the maximum number of iterations (i.e. optimization sweeps) before aborting the TCI construction. Default: `200`.
+
+For all other arguments, see the documentation for [`TensorCrossInterpolation.crossinterpolate2`](https://tensors4fields.gitlab.io/tensorcrossinterpolation.jl/dev/documentation/#TensorCrossInterpolation.crossinterpolate2-Union{Tuple{N},%20Tuple{ValueType},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}}},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}},%20Vector{Vector{Int64}}}}%20where%20{ValueType,%20N}).
+"""
 function quanticscrossinterpolate(
     ::Type{ValueType},
     f,
@@ -60,6 +87,31 @@ function quanticscrossinterpolate(
     return QuanticsTensorCI2{ValueType}(qtt, unfoldingscheme), ranks, errors
 end
 
+@doc raw"""
+    function quanticscrossinterpolate(
+        ::Type{ValueType},
+        f,
+        xvals::AbstractVector,
+        initialpivots::AbstractVector=[1];
+        kwargs...
+    ) where {ValueType}
+
+Interpolate a function ``f(x)`` as a quantics tensor train. The tensor train itself is constructed using the 2-site tensor cross interpolation algorithm implemented in [`TensorCrossInterpolation.crossinterpolate2`](https://tensors4fields.gitlab.io/tensorcrossinterpolation.jl/dev/documentation/#TensorCrossInterpolation.crossinterpolate2-Union{Tuple{N},%20Tuple{ValueType},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}}},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}},%20Vector{Vector{Int64}}}}%20where%20{ValueType,%20N}).
+
+Arguments:
+- `ValueType` is the return type of `f`. Automatic inference is too error-prone.
+- `f` is the function to be interpolated. `f` should take a single parameter (otherwise, use the other overload). The return type should be `ValueType`.
+- `xvals` is a vector of discretization grids, where the `i`th grid corresponds to the `i`th argument of `f`.
+- `initialpivots` is a vector of pivots to be used for initialization. Default: `[[1, 1, ...]]`.
+
+All other arguments are forwarded to `crossinterpolate2`. Most importantly:
+- `tolerance::Float64` is a float specifying the target tolerance for the interpolation. Default: `1e-8`.
+- `pivottolerance::Float64` is a float that specifies the tolerance for adding new pivots, i.e. the truncation of tensor train bonds. It should be <= tolerance, otherwise convergence may be impossible. Default: `tolerance`.
+- `maxbonddim::Int` specifies the maximum bond dimension for the TCI. Default: `typemax(Int)`, i.e. effectively unlimited.
+- `maxiter::Int` is the maximum number of iterations (i.e. optimization sweeps) before aborting the TCI construction. Default: `200`.
+
+For all other arguments, see the documentation for [`TensorCrossInterpolation.crossinterpolate2`](https://tensors4fields.gitlab.io/tensorcrossinterpolation.jl/dev/documentation/#TensorCrossInterpolation.crossinterpolate2-Union{Tuple{N},%20Tuple{ValueType},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}}},%20Tuple{Type{ValueType},%20Any,%20Union{Tuple{Vararg{Int64,%20N}},%20Vector{Int64}},%20Vector{Vector{Int64}}}}%20where%20{ValueType,%20N}).
+"""
 function quanticscrossinterpolate(
     ::Type{ValueType},
     f,
