@@ -7,8 +7,9 @@ function evaluate(
     qtci::QuanticsTensorCI2{ValueType},
     indices::Union{Array{Int},NTuple{N,Int}}
 )::ValueType where {N,ValueType}
+    R = div(length(qtci.tt), length(indices))
     bitlist = index_to_quantics(
-        indices, length(qtci.tt.localset); unfoldingscheme=qtci.unfoldingscheme)
+        indices, R; unfoldingscheme=qtci.unfoldingscheme)
     return TensorCrossInterpolation.evaluate(qtci.tt, bitlist)
 end
 
@@ -18,6 +19,10 @@ end
 
 function (qtci::QuanticsTensorCI2{V})(indices)::V where {V}
     return evaluate(qtci, indices)
+end
+
+function (qtci::QuanticsTensorCI2{V})(indices::Int...)::V where {V}
+    return evaluate(qtci, indices...)
 end
 
 function quantics_to_x(
@@ -48,7 +53,7 @@ function quanticscrossinterpolate(
     R = Int(first(localdimensions))
     L = n * R
 
-    qf(q) = f(quantics_to_x(q, xvals, unfoldingscheme=unfoldingscheme))
+    qf(q) = f(quantics_to_x(q, xvals, unfoldingscheme=unfoldingscheme)...)
     qinitialpivots = index_to_quantics.(initialpivots, R; unfoldingscheme=unfoldingscheme)
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
         ValueType, qf, fill(2, L), qinitialpivots; kwargs...)
@@ -64,7 +69,7 @@ function quanticscrossinterpolate(
 ) where {ValueType}
     return quanticscrossinterpolate(
         ValueType,
-        x -> f(first(x)),
+        f,
         [xvals],
         [initialpivots];
         kwargs...)
