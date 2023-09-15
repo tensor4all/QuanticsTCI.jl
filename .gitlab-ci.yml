@@ -34,9 +34,6 @@ Julia 1.9:
   extends:
     - .script
     - .coverage
-  except:
-    changes:
-      - "README.md"
 .doctest:
   script:
     - |
