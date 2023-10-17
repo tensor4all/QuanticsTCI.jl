@@ -11,6 +11,19 @@ before_script:
       Pkg.Registry.add(
         RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
       )'
+
+variables:
+  CI_JULIA_CACHE_DIR: ${CI_PROJECT_DIR}/julia_pkg
+  JULIA_DEPOT_PATH: ${CI_JULIA_CACHE_DIR}
+cache:
+  key:
+    files:
+      - Project.toml
+      - docs/Project.toml
+    prefix: ${CI_JOB_NAME}
+  paths:
+    - ${CI_JULIA_CACHE_DIR}
+
 .script:
   script:
     - |
