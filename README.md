@@ -1,7 +1,8 @@
 # QuanticsTCI
 
-[![Build Status](https://gitlab.com/marc.ritter/QuanticsTCI.jl/badges/main/pipeline.svg)](https://gitlab.com/marc.ritter/QuanticsTCI.jl/pipelines)
-[![Coverage](https://gitlab.com/marc.ritter/QuanticsTCI.jl/badges/main/coverage.svg)](https://gitlab.com/marc.ritter/QuanticsTCI.jl/commits/main)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html)
+[![pipeline status](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/pipeline.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
+[![coverage report](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/coverage.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
 
 This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format.
 
