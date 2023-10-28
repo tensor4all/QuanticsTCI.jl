@@ -26,7 +26,10 @@ qttvals = qtt.(1:256, collect(1:256)')
 contour(xvals, yvals, qttvals, fill=true)
 xlabel!("x")
 ylabel!("y")
+savefig("simple.svg"); nothing # hide
 ```
+
+![](simple.svg)
 
 # Quantics representation
 
