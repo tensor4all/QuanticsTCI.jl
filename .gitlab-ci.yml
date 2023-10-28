@@ -59,11 +59,11 @@ Julia 1.9:
         doctest(QuanticsTCI)
         include("docs/make.jl")'
 doctest:
-  image: julia:1.6
+  image: julia:1.9
   extends:
     - .doctest
 pages:
-  image: julia:1.6
+  image: julia:1.9
   stage: deploy
   extends:
     - .doctest
