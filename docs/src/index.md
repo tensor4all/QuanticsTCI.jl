@@ -8,7 +8,7 @@ This module allows easy translation of functions to quantics representation. It 
 
 # Quickstart
 
-The easiest way to construct a quantics tensor train is the `quanticscrossinterpolate` function. For example, the function ``f(x, y) = exp(-x - 2y)`` can be interpolated as follows.
+The easiest way to construct a quantics tensor train is the `quanticscrossinterpolate` function. For example, the function ``f(x, y) = \exp(-x - 2y)`` can be interpolated as follows.
 
 ```@example simple
 using QuanticsTCI
@@ -26,7 +26,10 @@ qttvals = qtt.(1:256, collect(1:256)')
 contour(xvals, yvals, qttvals, fill=true)
 xlabel!("x")
 ylabel!("y")
+savefig("simple.svg"); nothing # hide
 ```
+
+![](simple.svg)
 
 # Quantics representation
 
