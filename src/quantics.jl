@@ -13,17 +13,31 @@ end
 end
 
 """
-    fuse_dimensions(bitlists...)
+    fuse_dimensions([base=Val(2)], bitlists...)
 
 Merge d bitlists that represent a quantics index into a bitlist where each bit
-has dimension 2^d. This fuses legs for different dimensions that have equal length
+has dimension base^d. This fuses legs for different dimensions that have equal length
 scale (see QTCI paper).
 
 Inverse of [`split_dimensions`](@ref).
 """
-function fuse_dimensions(bitlists...)
-    return sum([(bitlists[d] .- 1) .* (2^(d - 1)) for d in eachindex(bitlists)]) .+ 1
+function fuse_dimensions(base::Val{B}, bitlists...) where {B}
+    result = ones(Int, length(bitlists[1]))
+    return fuse_dimensions!(base, result, bitlists...)
 end
+
+fuse_dimensions(bitlists...) = fuse_dimensions(Val(2), bitlists...)
+
+function fuse_dimensions!(base::Val{B}, fused::AbstractArray{<:Integer}, bitlists...) where {B}
+    p = 1
+    for d in eachindex(bitlists)
+        @. fused += (bitlists[d] - 1) * p
+        p *= B
+    end
+    return fused
+end
+
+fuse_dimensions!(fused::AbstractArray{<:Integer}, bitlists...) = fuse_dimensions!(Val(2), fused::AbstractArray{<:Integer}, bitlists...)
 
 """
     function merge_dimensions(bitlists...)
@@ -35,19 +49,29 @@ function merge_dimensions(bitlists...)
 end
 
 """
-    split_dimensions(bitlist, d)
+    split_dimensions([base=Val(2)], bitlist, d)
 
-Split up a merged bitlist with bits of dimension 2^d into d bitlists where each
-bit has dimension 2.
+Split up a merged bitlist with bits of dimension base^d into d bitlists where each bit has dimension `base`.
 Inverse of [`fuse_dimensions`](@ref).
 """
-function split_dimensions(bitlist, d)
-    dimensions_bitmask = 2 .^ (0:(d-1))
-    return [
-        (((bitlist .- 1) .& dimensions_bitmask[i]) .!= 0) .+ 1
-        for i in 1:d
-    ]
+function split_dimensions(base::Val{B}, bitlist, d) where {B}
+    result = [zeros(Int, length(bitlist)) for _ in 1:d]
+    return split_dimensions!(base, result, bitlist)
 end
+
+function split_dimensions!(base::Val{B}, bitlists, bitlist) where {B}
+    d = length(bitlists)
+    p = 1
+    for i in 1:d
+        bitlists[i] .= (((bitlist .- 1) .& p) .!= 0) .+ 1
+        p *= B
+    end
+    return bitlists
+end
+
+split_dimensions(bitlist, d) = split_dimensions(Val(2), bitlist, d)
+
+split_dimensions!(bitlists, bitlist) = split_dimensions!(Val(2), bitlists, bitlist)
 
 """
     interleave_dimensions(bitlists...)
