@@ -135,7 +135,7 @@ function quantics_to_index_fused(
     dimensions_bitmask = ntuple(i->B .^ (i-1), d)
     result = ones(MVector{d,Int})
     for i in eachindex(bitlist)
-        result .+= (((bitlist[i] - 1) .& dimensions_bitmask) .!= 0) .* (1 << (n - i))
+        result .+= (((bitlist[i] - 1) .& dimensions_bitmask) .!= 0) .* (B^(n - i))
     end
     return tuple(result...)
 end
@@ -144,4 +144,21 @@ function quantics_to_index_fused(
     ::Val{d}, bitlist::AbstractVector{<:Integer}
 )::NTuple{d,Int} where {d}
     return quantics_to_index_fused(Val{2}, Val(d), bitlist)
+end
+
+
+"""
+    binary_representation(index::Int; numdigits=8)
+
+Convert an integer to its binary representation.
+
+ * `index`       an integer
+ * `numdigits`   how many digits to zero-pad to
+"""
+function binary_representation(index::Int; numdigits=8) where {Base}
+    return [(index & (1 << (numdigits - i))) != 0 for i in 1:numdigits]
+end
+
+function bitlist(::Val{B}, index::Int; numdigits=8) where {B}
+    return [mod(index - 1, B^(numdigits-i+1)) ÷ B^(numdigits-i) + 1 for i in 1:numdigits]
 end

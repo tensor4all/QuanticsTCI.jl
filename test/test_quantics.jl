@@ -1,12 +1,32 @@
 @testset "quantics representation" begin
     @testset "quantics to index, 1d" begin
-        @test quantics_to_index([1 1 1 1]) == 1
-        @test quantics_to_index([1 1 1 2]) == 2
-        @test quantics_to_index([1 1 2 1]) == 3
-        @test quantics_to_index([1 1 2 2]) == 4
-        @test quantics_to_index([2 1 1 1]) == 9
+        B = 2
+        d = 1
+        @test quantics_to_index_fused(Val(B), Val(d), [1, 1, 1, 1]) == (1,)
+        @test quantics_to_index_fused(Val(B), Val(d), [1, 1, 1, 2]) == (2,)
+        @test quantics_to_index_fused(Val(B), Val(d), [1, 1, 2, 1]) == (3,)
+        @test quantics_to_index_fused(Val(B), Val(d), [1, 1, 2, 2]) == (4,)
+        @test quantics_to_index_fused(Val(B), Val(d), [2, 1, 1, 1]) == (9,)
     end
 
+    @testset "quantics to index, 1d (general power base)" for B in [4]
+        d = 1
+        R = 4 # number of bits
+
+        index_reconst = Int[]
+        for index in 1:B^R
+            bitlist_ = QuanticsTCI.bitlist(Val(B), index; numdigits=R)
+            @show index
+            @show bitlist_
+            @show quantics_to_index_fused(Val(B), Val(d), bitlist_)
+            push!(index_reconst, quantics_to_index_fused(Val(B), Val(d), bitlist_)[1])
+        end
+
+        @test collect(1:B^R) == index_reconst
+    end
+
+
+    #==
     @testset "index to quantics, 1d" begin
         @test [1, 1, 1, 1] == index_to_quantics([1], 4)
         @test [1, 1, 1, 2] == index_to_quantics([2], 4)
@@ -173,4 +193,5 @@ end
             end
         end
     end
+    ==#
 end

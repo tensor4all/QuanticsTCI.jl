@@ -25,12 +25,12 @@ function quantics_to_origcoord_fused(g::Grid{d,B}, bitlist) where {d,B}
     return grididx_to_origcoord(g, idx)
 end
 
-#function quantics_function_fused{T}(f::Function, g::Grid{d,B})::Function where {T,d,B}
-    #function _f(bitlist)::T
-        #return f(quantics_to_origcoord_fused(g, bitlist))
-    #end
-    #return _f
-#end
+function quantics_function_fused(::Type{T}, g::Grid{d,B}, f::Function)::Function where {T,d,B}
+    function _f(bitlist)::T
+        return f(quantics_to_origcoord_fused(g, bitlist))
+    end
+    return _f
+end
 
 
 @doc raw"""
