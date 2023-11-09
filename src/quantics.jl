@@ -12,21 +12,27 @@ module UnfoldingSchemes
 end
 end
 
+function _checkdigits(::Val{B}, digitlist) where {B}
+    maximum(digitlist) <= B || error("maximum(digitlist) <= B")
+    minimum(digitlist) >= 0 || error("minimum(digitlist) >= 0")
+end
+
 """
     fuse_dimensions([base=Val(2)], digitlists...)
 
-Merge d digitlists that represent a quantics index into a digitlist where each bit
+Fuse d digitlists that represent a quantics index into a digitlist where each bit
 has dimension base^d. This fuses legs for different dimensions that have equal length
 scale (see QTCI paper).
 
-Inverse of [`split_dimensions`](@ref).
+Inverse of [`unfuse_dimensions`](@ref).
 """
-function fuse_dimensions(base::Val{B}, digitlists...) where {B}
+function fuse_dimensions(::Val{B}, digitlists...) where {B}
+    _checkdigits.(Val(B), digitlists)
     result = ones(Int, length(digitlists[1]))
-    return fuse_dimensions!(base, result, digitlists...)
+    return fuse_dimensions!(Val(B), result, digitlists...)
 end
 
-fuse_dimensions(digitlists...) = fuse_dimensions(Val(2), digitlists...)
+#fuse_dimensions(digitlists...) = fuse_dimensions(Val(2), digitlists...)
 
 function fuse_dimensions!(::Val{B}, fused::AbstractArray{<:Integer}, digitlists...) where {B}
     p = 1
@@ -37,41 +43,31 @@ function fuse_dimensions!(::Val{B}, fused::AbstractArray{<:Integer}, digitlists.
     return fused
 end
 
-fuse_dimensions!(fused::AbstractArray{<:Integer}, digitlists...) = fuse_dimensions!(Val(2), fused::AbstractArray{<:Integer}, digitlists...)
+#fuse_dimensions!(fused::AbstractArray{<:Integer}, digitlists...) = fuse_dimensions!(Val(2), fused::AbstractArray{<:Integer}, digitlists...)
+
 
 """
-    function merge_dimensions(digitlists...)
+    unfuse_dimensions([base=Val(2)], digitlist, d)
 
-See [`fuse_dimensions`](@ref).
-"""
-function merge_dimensions(digitlists...)
-    return fuse_dimensions(digitlists...)
-end
-
-"""
-    split_dimensions([base=Val(2)], digitlist, d)
-
-Split up a merged digitlist with bits of dimension base^d into d digitlists where each bit has dimension `base`.
+Unfuse up a fused digitlist with bits of dimension base^d into d digitlists where each bit has dimension `base`.
 Inverse of [`fuse_dimensions`](@ref).
 """
-function split_dimensions(base::Val{B}, digitlist, d) where {B}
+function unfuse_dimensions(::Val{B}, digitlist, d) where {B}
     result = [zeros(Int, length(digitlist)) for _ in 1:d]
-    return split_dimensions!(base, result, digitlist)
+    return unfuse_dimensions!(Val(B), result, digitlist)
 end
 
-function split_dimensions!(base::Val{B}, digitlists, digitlist) where {B}
-    d = length(digitlists)
-    p = 1
-    for i in 1:d
-        digitlists[i] .= (((digitlist .- 1) .& p) .!= 0) .+ 1
-        p *= B
+function unfuse_dimensions!(::Val{B}, digitlists, digitlist) where {B}
+    ndim = length(digitlists)
+    R  = length(digitlist)
+    for i in 1:ndim
+        for j in 1:R
+           digitlists[i][j] = digit_at_index(Val(B), digitlist[j], ndim-i+1; numdigits=ndim) 
+        end
     end
     return digitlists
 end
 
-split_dimensions(digitlist, d) = split_dimensions(Val(2), digitlist, d)
-
-split_dimensions!(digitlists, digitlist) = split_dimensions!(Val(2), digitlists, digitlist)
 
 """
     interleave_dimensions(digitlists...)
@@ -208,6 +204,7 @@ function index_to_quantics_fused!(::Val{B}, digitlist, index::NTuple{R,<:Integer
 end
 
 
+#==
 """
 Does the opposite of [`quantics_to_index_fused!`](@ref) for 1d case
 """
@@ -237,3 +234,5 @@ Does the same as [`index_to_quantics`](@ref) but with default base `B=2`.
 function index_to_quantics(index::Integer; numdigits=8)
     return index_to_quantics(Val(2), index; numdigits=numdigits)
 end
+
+==#
