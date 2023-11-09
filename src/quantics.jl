@@ -13,152 +13,227 @@ end
 end
 
 """
-    fuse_dimensions([base=Val(2)], bitlists...)
+    fuse_dimensions([base=Val(2)], digitlists...)
 
-Merge d bitlists that represent a quantics index into a bitlist where each bit
+Merge d digitlists that represent a quantics index into a digitlist where each bit
 has dimension base^d. This fuses legs for different dimensions that have equal length
 scale (see QTCI paper).
 
 Inverse of [`split_dimensions`](@ref).
 """
-function fuse_dimensions(base::Val{B}, bitlists...) where {B}
-    result = ones(Int, length(bitlists[1]))
-    return fuse_dimensions!(base, result, bitlists...)
+function fuse_dimensions(base::Val{B}, digitlists...) where {B}
+    result = ones(Int, length(digitlists[1]))
+    return fuse_dimensions!(base, result, digitlists...)
 end
 
-fuse_dimensions(bitlists...) = fuse_dimensions(Val(2), bitlists...)
+fuse_dimensions(digitlists...) = fuse_dimensions(Val(2), digitlists...)
 
-function fuse_dimensions!(::Val{B}, fused::AbstractArray{<:Integer}, bitlists...) where {B}
+function fuse_dimensions!(::Val{B}, fused::AbstractArray{<:Integer}, digitlists...) where {B}
     p = 1
-    for d in eachindex(bitlists)
-        @. fused += (bitlists[d] - 1) * p
+    for d in eachindex(digitlists)
+        @. fused += (digitlists[d] - 1) * p
         p *= B
     end
     return fused
 end
 
-fuse_dimensions!(fused::AbstractArray{<:Integer}, bitlists...) = fuse_dimensions!(Val(2), fused::AbstractArray{<:Integer}, bitlists...)
+fuse_dimensions!(fused::AbstractArray{<:Integer}, digitlists...) = fuse_dimensions!(Val(2), fused::AbstractArray{<:Integer}, digitlists...)
 
 """
-    function merge_dimensions(bitlists...)
+    function merge_dimensions(digitlists...)
 
 See [`fuse_dimensions`](@ref).
 """
-function merge_dimensions(bitlists...)
-    return fuse_dimensions(bitlists...)
+function merge_dimensions(digitlists...)
+    return fuse_dimensions(digitlists...)
 end
 
 """
-    split_dimensions([base=Val(2)], bitlist, d)
+    split_dimensions([base=Val(2)], digitlist, d)
 
-Split up a merged bitlist with bits of dimension base^d into d bitlists where each bit has dimension `base`.
+Split up a merged digitlist with bits of dimension base^d into d digitlists where each bit has dimension `base`.
 Inverse of [`fuse_dimensions`](@ref).
 """
-function split_dimensions(base::Val{B}, bitlist, d) where {B}
-    result = [zeros(Int, length(bitlist)) for _ in 1:d]
-    return split_dimensions!(base, result, bitlist)
+function split_dimensions(base::Val{B}, digitlist, d) where {B}
+    result = [zeros(Int, length(digitlist)) for _ in 1:d]
+    return split_dimensions!(base, result, digitlist)
 end
 
-function split_dimensions!(base::Val{B}, bitlists, bitlist) where {B}
-    d = length(bitlists)
+function split_dimensions!(base::Val{B}, digitlists, digitlist) where {B}
+    d = length(digitlists)
     p = 1
     for i in 1:d
-        bitlists[i] .= (((bitlist .- 1) .& p) .!= 0) .+ 1
+        digitlists[i] .= (((digitlist .- 1) .& p) .!= 0) .+ 1
         p *= B
     end
-    return bitlists
+    return digitlists
 end
 
-split_dimensions(bitlist, d) = split_dimensions(Val(2), bitlist, d)
+split_dimensions(digitlist, d) = split_dimensions(Val(2), digitlist, d)
 
-split_dimensions!(bitlists, bitlist) = split_dimensions!(Val(2), bitlists, bitlist)
+split_dimensions!(digitlists, digitlist) = split_dimensions!(Val(2), digitlists, digitlist)
 
 """
-    interleave_dimensions(bitlists...)
+    interleave_dimensions(digitlists...)
 
-Interleaves the indices of all bitlists into one long bitlist. Use this for
+Interleaves the indices of all digitlists into one long digitlist. Use this for
 quantics representation of multidimensional objects without fusing indices.
 Inverse of [`deinterleave_dimensions`](@ref).
 """
-function interleave_dimensions(bitlists...)::Vector{Int}
-    results = Vector{Int}(undef, length(bitlists[1]) * length(bitlists))
-    return interleave_dimensions!(results, bitlists...)
+function interleave_dimensions(digitlists...)::Vector{Int}
+    results = Vector{Int}(undef, length(digitlists[1]) * length(digitlists))
+    return interleave_dimensions!(results, digitlists...)
 end
 
-function interleave_dimensions!(interleaved_bitlist::AbstractArray{<:Integer}, bitlists...)
+function interleave_dimensions!(interleaved_digitlist::AbstractArray{<:Integer}, digitlists...)
     idx = 1
-    for i in eachindex(bitlists[1])
-        for d in eachindex(bitlists)
-            interleaved_bitlist[idx] = bitlists[d][i]
+    for i in eachindex(digitlists[1])
+        for d in eachindex(digitlists)
+            interleaved_digitlist[idx] = digitlists[d][i]
             idx += 1
         end
     end
-    return interleaved_bitlist
+    return interleaved_digitlist
 end
 
 """
-    deinterleave_dimensions(bitlist, d)
+    deinterleave_dimensions(digitlist, d)
 
-Reverses the interleaving of bits, i.e. yields bitlists for each dimension from
-a long interleaved bitlist. Inverse of [`interleave_dimensions`](@ref).
+Reverses the interleaving of bits, i.e. yields digitlists for each dimension from
+a long interleaved digitlist. Inverse of [`interleave_dimensions`](@ref).
 """
-function deinterleave_dimensions(bitlist, d)
-    return [bitlist[i:d:end] for i in 1:d]
+function deinterleave_dimensions(digitlist, d)
+    return [digitlist[i:d:end] for i in 1:d]
 end
 
-function deinterleave_dimensions!(deinterleaved_bitlists::AbstractArray{<:AbstractArray{I}}, bitlist) where {I<:Integer}
-    d = length(deinterleaved_bitlists)
+function deinterleave_dimensions!(deinterleaved_digitlists::AbstractArray{<:AbstractArray{I}}, digitlist) where {I<:Integer}
+    d = length(deinterleaved_digitlists)
     for i in 1:d
-        @. deinterleaved_bitlists[i] = bitlist[i:d:end]
+        @. deinterleaved_digitlists[i] = digitlist[i:d:end]
     end
-    return deinterleaved_bitlists
+    return deinterleaved_digitlists
 end
 
 
 """
     quantics_to_index_fused(
-        ::Val{B}, ::Val{d}, bitlist::AbstractVector{<:Integer}
+        ::Val{B}, ::Val{d}, digitlist::AbstractVector{<:Integer}
     )::NTuple{d,Int} where {B, d}
 
 Convert a d-dimensional index from fused quantics representation to d Integers.
 
 * `B`           base for quantics (default: 2)
 * `d`           number of dimensions
-* `bitlist`     binary representation
+* `digitlist`     base-b representation
 
 See also [`quantics_to_index_interleaved`](@ref).
 """
 function quantics_to_index_fused(
-    ::Val{B}, ::Val{d}, bitlist::AbstractVector{<:Integer}
+    ::Val{B}, ::Val{d}, digitlist::AbstractVector{<:Integer}
 )::NTuple{d,Int} where {B, d}
-    n = length(bitlist)
-    dimensions_bitmask = ntuple(i->B .^ (i-1), d)
+    R = length(digitlist)
     result = ones(MVector{d,Int})
-    for i in eachindex(bitlist)
-        result .+= (((bitlist[i] - 1) .& dimensions_bitmask) .!= 0) .* (B^(n - i))
+
+    maximum(digitlist) <= B^d || error("maximum(digitlist) <= B^d")
+    minimum(digitlist) >= 0 || error("minimum(digitlist) >= 0")
+
+    for n in 1:R # from the least to most significant digit
+        scale = B^(n-1) # length scale
+        tmp = digitlist[R-n+1] - 1
+        for i in 1:d # in the order of 1st dim, 2nd dim, ...
+            div_, rem_ = divrem(tmp, B)
+            result[i] += rem_ * scale
+            tmp = div_
+        end
     end
+
     return tuple(result...)
 end
 
 function quantics_to_index_fused(
-    ::Val{d}, bitlist::AbstractVector{<:Integer}
+    ::Val{d}, digitlist::AbstractVector{<:Integer}
 )::NTuple{d,Int} where {d}
-    return quantics_to_index_fused(Val{2}, Val(d), bitlist)
+    return quantics_to_index_fused(Val{2}, Val(d), digitlist)
+end
+
+
+function index_to_quantics!(::Val{B}, digitlist, index::Integer) where {B}
+    numdigits = length(digitlist)
+    for i in 1:numdigits
+        digitlist[i] = mod(index - 1, B^(numdigits-i+1)) ÷ B^(numdigits-i) + 1
+    end
+    return digitlist
+end
+
+
+function _index_to_quantics_fused!(::Val{B}, digitlist, index) where {B}
+    R = length(digitlist)
+    ndims = length(index)
+    digitlist .= 1
+    for dim in 1:ndims
+        for i in 1:R # from the left to right
+           digitlist[i] += (B^(dim-1)) * (digit_at_index(Val(B), index[dim], i; numdigits=R) - 1)
+        end
+    end
+    return digitlist
+end
+
+"""
+`index`, `position` and the result are one-based.
+
+`B`: base
+`index`: The integer to look at.
+`position=1`: Specify the position of the digit to look at. 1 is the most significant (most left) digit.
+`numdigits=8`: Specify the number of digits in the number `index`.
+"""
+function digit_at_index(::Val{B}, index, position; numdigits=8) where {B}
+    p_ = numdigits - position + 1
+    return mod((index-1), B^p_) ÷ B^(p_-1) + 1
 end
 
 
 """
-    binary_representation(index::Int; numdigits=8)
-
-Convert an integer to its binary representation.
-
- * `index`       an integer
- * `numdigits`   how many digits to zero-pad to
+Does the opposite of [`quantics_to_index_fused!`](@ref)
 """
-function binary_representation(index::Int; numdigits=8) where {Base}
-    return [(index & (1 << (numdigits - i))) != 0 for i in 1:numdigits]
+function index_to_quantics_fused!(::Val{B}, digitlist, index::AbstractVector{<:Integer}) where {B}
+    return _index_to_quantics_fused!(Val(B), digitlist, index)
 end
 
-function bitlist(::Val{B}, index::Int; numdigits=8) where {B}
-    return [mod(index - 1, B^(numdigits-i+1)) ÷ B^(numdigits-i) + 1 for i in 1:numdigits]
+
+"""
+Does the opposite of [`quantics_to_index_fused!`](@ref)
+"""
+function index_to_quantics_fused!(::Val{B}, digitlist, index::NTuple{R,<:Integer}) where {B,R}
+    return _index_to_quantics_fused!(Val(B), digitlist, index)
+end
+
+
+"""
+Does the opposite of [`quantics_to_index_fused!`](@ref) for 1d case
+"""
+function index_to_quantics_fused!(::Val{B}, digitlist, index::Integer) where {B}
+    return _index_to_quantics_fused!(Val(B), digitlist, (index,))
+end
+
+
+"""
+Does the same as [`index_to_quantics!`](@ref) but with default base `B=2`.
+"""
+index_to_quantics!(digitlist, index::Integer) = index_to_quantics!(Val(2), digitlist, index)
+
+"""
+    index_to_quantics(::Val{B}, index::Integer; numdigits=8)
+
+Does the same as [`index_to_quantics!`](@ref) but returns a new vector.
+"""
+function index_to_quantics(::Val{B}, index::Integer; numdigits=8) where {B}
+    digitlist = Vector{Int}(undef, numdigits)
+    return index_to_quantics!(Val(B), digitlist, index)
+end
+
+"""
+Does the same as [`index_to_quantics`](@ref) but with default base `B=2`.
+"""
+function index_to_quantics(index::Integer; numdigits=8)
+    return index_to_quantics(Val(2), index; numdigits=numdigits)
 end
