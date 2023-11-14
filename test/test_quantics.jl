@@ -1,3 +1,5 @@
+import QuanticsTCI: quantics_to_index_fused, index_to_quantics
+
 @testset "quantics representation" begin
     @testset "quantics to index, 1d" begin
         B = 2

@@ -27,7 +27,7 @@ end
 
 function quantics_function_fused(::Type{T}, g::Grid{d,B}, f::Function)::Function where {T,d,B}
     function _f(bitlist)::T
-        return f(quantics_to_origcoord_fused(g, bitlist))
+        return f(quantics_to_origcoord_fused(g, bitlist)...)
     end
     return _f
 end

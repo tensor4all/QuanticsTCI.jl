@@ -204,7 +204,6 @@ function index_to_quantics_fused!(::Val{B}, digitlist, index::NTuple{R,<:Integer
 end
 
 
-#==
 """
 Does the opposite of [`quantics_to_index_fused!`](@ref) for 1d case
 """
@@ -234,5 +233,3 @@ Does the same as [`index_to_quantics`](@ref) but with default base `B=2`.
 function index_to_quantics(index::Integer; numdigits=8)
     return index_to_quantics(Val(2), index; numdigits=numdigits)
 end
-
-==#
