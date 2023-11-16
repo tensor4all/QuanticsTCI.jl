@@ -1,3 +1,4 @@
+@testitem "quantics.jl" begin
 import QuanticsTCI: quantics_to_index_fused, index_to_quantics
 import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
 
@@ -73,4 +74,5 @@ import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
         @test deinterleave_dimensions([1, 2, 1, 3, 1, 4, 1, 5], 2) == [[1, 1, 1, 1], [2, 3, 4, 5]]
         @test deinterleave_dimensions([1, 2, 11, 1, 3, 12, 1, 4, 13, 1, 5, 14], 3) == [[1, 1, 1, 1], [2, 3, 4, 5], [11, 12, 13, 14]]
     end
+end
 end

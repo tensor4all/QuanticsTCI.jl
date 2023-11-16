@@ -109,8 +109,9 @@ end
 
 
 """
-    quantics_to_index_fused(
-        ::Val{B}, ::Val{d}, digitlist::AbstractVector{<:Integer}
+    function quantics_to_index_fused(
+        digitlist::AbstractVector{<:Integer};
+        base::Val{B}=Val(2), dims::Val{d}=Val(1)
     )::NTuple{d,Int} where {B, d}
 
 Convert a d-dimensional index from fused quantics representation to d Integers.
@@ -176,7 +177,7 @@ end
 
 
 """
-    index_to_quantics(::Val{B}, index::Integer; numdigits=8)
+    index_to_quantics(index::Integer; numdigits=8, base::Val{B}=Val(2)) where {B}
 
 Does the same as [`index_to_quantics!`](@ref) but returns a new vector.
 """

@@ -1,5 +1,6 @@
-using QuanticsTCI
-using Test
-using LinearAlgebra
+using ReTestItems: runtests, @testitem
+#using LinearAlgebra
 
-include("test_quantics.jl")
+using QuanticsTCI: QuanticsTCI
+
+runtests(QuanticsTCI)

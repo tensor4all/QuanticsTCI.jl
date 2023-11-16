@@ -21,7 +21,7 @@ end
 Convert fused quantics bitlist to the original coordinate system
 """
 function quantics_to_origcoord_fused(g::Grid{d,B}, bitlist) where {d,B}
-    idx = quantics_to_index_fused(Val(B), Val(d), bitlist)
+    idx = quantics_to_index_fused(bitlist; base=Val(B), dims=Val(d))
     return grididx_to_origcoord(g, idx)
 end
 
@@ -95,6 +95,7 @@ struct DiscretizedGrid{d,B} <: Grid{d,B}
     grid_max::NTuple{d,Float64}
 end
 
+
 grid_min(g::DiscretizedGrid) = g.grid_min
 grid_max(g::DiscretizedGrid) = g.grid_max
 grid_step(g::DiscretizedGrid{d,B}) where {d,B} = (g.grid_max .- g.grid_min) ./ (B^g.R)
@@ -102,9 +103,18 @@ grid_step(g::DiscretizedGrid{d,B}) where {d,B} = (g.grid_max .- g.grid_min) ./ (
 """
 Create a discrete grid for continuous data
 """
+function DiscretizedGrid{d}(R::Int, grid_min, grid_max) where {d}
+    return DiscretizedGrid{d,2}(R, grid_min, grid_max)
+end
+
 function DiscretizedGrid{d,B}(R::Int) where {d,B}
     return DiscretizedGrid{d,B}(R, ntuple(i -> 0.0, d), ntuple(i -> 1.0, d))
 end
+
+function DiscretizedGrid{d}(R::Int) where {d}
+    return DiscretizedGrid{d,2}(R)
+end
+
 
 """
 Convert a coordinate in the original coordinate system to the corresponding grid index
