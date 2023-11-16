@@ -6,11 +6,11 @@ import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
 @testset "quantics representation" begin
     @testset "quantics to index, 1d" begin
         B = 2
-        @test quantics_to_index_fused([1, 1, 1, 1]; base=Val(B)) == (1,)
-        @test quantics_to_index_fused([1, 1, 1, 2]; base=Val(B)) == (2,)
-        @test quantics_to_index_fused([1, 1, 2, 1]; base=Val(B)) == (3,)
-        @test quantics_to_index_fused([1, 1, 2, 2]; base=Val(B)) == (4,)
-        @test quantics_to_index_fused([2, 1, 1, 1]; base=Val(B)) == (9,)
+        @test quantics_to_index_fused([1, 1, 1, 1]; base=B) == (1,)
+        @test quantics_to_index_fused([1, 1, 1, 2]; base=B) == (2,)
+        @test quantics_to_index_fused([1, 1, 2, 1]; base=B) == (3,)
+        @test quantics_to_index_fused([1, 1, 2, 2]; base=B) == (4,)
+        @test quantics_to_index_fused([2, 1, 1, 1]; base=B) == (9,)
     end
 
     @testset "quantics to index, 1d (general power base)" for B in [2, 4]
@@ -19,8 +19,8 @@ import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
 
         index_reconst = Int[]
         for index in 1:B^R
-            digitlist_ = QuanticsTCI.index_to_quantics(index; numdigits=R, base=Val(B))
-            push!(index_reconst, only(quantics_to_index_fused(digitlist_; base=Val(B), dims=Val(d))))
+            digitlist_ = QuanticsTCI.index_to_quantics(index; numdigits=R, base=B)
+            push!(index_reconst, only(quantics_to_index_fused(digitlist_; base=B, dims=Val(d))))
         end
 
         @test collect(1:B^R) == index_reconst
@@ -35,16 +35,16 @@ import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
         # y_i = quantics index for the second variable at i (1 <= i <= R)
         #
         # X_i = (x_i-1) + (base) * (y_i-1) + 1 (column major)
-        @test quantics_to_index_fused([1, 1]; base=Val(base), dims=Val(dim)) == (1, 1)
-        @test quantics_to_index_fused([1, 2]; base=Val(base), dims=Val(dim)) == (2, 1)
-        @test quantics_to_index_fused([1, 3]; base=Val(base), dims=Val(dim)) == (3, 1)
-        @test quantics_to_index_fused([1, 4]; base=Val(base), dims=Val(dim)) == (1, 2)
-        @test quantics_to_index_fused([1, 5]; base=Val(base), dims=Val(dim)) == (2, 2)
-        @test quantics_to_index_fused([1, 6]; base=Val(base), dims=Val(dim)) == (3, 2)
-        @test quantics_to_index_fused([1, 7]; base=Val(base), dims=Val(dim)) == (1, 3)
-        @test quantics_to_index_fused([1, 8]; base=Val(base), dims=Val(dim)) == (2, 3)
-        @test quantics_to_index_fused([1, 9]; base=Val(base), dims=Val(dim)) == (3, 3)
-        @test quantics_to_index_fused([2, 1]; base=Val(base), dims=Val(dim)) == (4, 1)
+        @test quantics_to_index_fused([1, 1]; base=base, dims=Val(dim)) == (1, 1)
+        @test quantics_to_index_fused([1, 2]; base=base, dims=Val(dim)) == (2, 1)
+        @test quantics_to_index_fused([1, 3]; base=base, dims=Val(dim)) == (3, 1)
+        @test quantics_to_index_fused([1, 4]; base=base, dims=Val(dim)) == (1, 2)
+        @test quantics_to_index_fused([1, 5]; base=base, dims=Val(dim)) == (2, 2)
+        @test quantics_to_index_fused([1, 6]; base=base, dims=Val(dim)) == (3, 2)
+        @test quantics_to_index_fused([1, 7]; base=base, dims=Val(dim)) == (1, 3)
+        @test quantics_to_index_fused([1, 8]; base=base, dims=Val(dim)) == (2, 3)
+        @test quantics_to_index_fused([1, 9]; base=base, dims=Val(dim)) == (3, 3)
+        @test quantics_to_index_fused([2, 1]; base=base, dims=Val(dim)) == (4, 1)
     end
 
     @testset "quantics back-and-forth, 2d" begin
@@ -55,8 +55,8 @@ import QuanticsTCI: interleave_dimensions, deinterleave_dimensions
         for j in 1:base^R, i in 1:base^R
             index = (i, j)
             digitlist = Vector{Int}(undef, R)
-            QuanticsTCI.index_to_quantics_fused!(digitlist, index; base=Val(base))
-            index_reconst = QuanticsTCI.quantics_to_index_fused(digitlist; base=Val(base), dims=Val(dim))
+            QuanticsTCI.index_to_quantics_fused!(digitlist, index; base=base)
+            index_reconst = QuanticsTCI.quantics_to_index_fused(digitlist; base=base, dims=Val(dim))
             @test index == index_reconst
         end
     end
