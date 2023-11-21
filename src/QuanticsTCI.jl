@@ -1,7 +1,6 @@
 module QuanticsTCI
 
 using TensorCrossInterpolation
-using ITensors
 
 # To add methods to rank
 import LinearAlgebra: rank
