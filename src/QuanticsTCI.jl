@@ -17,8 +17,6 @@ export evaluate_mps
 export quanticscrossinterpolate
 
 include("quantics.jl")
-include("binaryops.jl")
-include("propagators.jl")
 include("tciinterface.jl")
 
 end
