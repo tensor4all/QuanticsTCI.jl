@@ -7,9 +7,12 @@ function evaluate(
     qtci::QuanticsTensorCI2{ValueType},
     indices::Union{Array{Int},NTuple{N,Int}}
 )::ValueType where {N,ValueType}
-    R = div(length(qtci.tt), length(indices))
-    bitlist = index_to_quantics(
-        indices, R; unfoldingscheme=qtci.unfoldingscheme)
+    R = if qtci.unfoldingscheme == UnfoldingSchemes.interleaved
+        div(length(qtci.tt), length(indices))
+    else
+        length(qtci.tt)
+    end
+    bitlist = index_to_quantics(indices, R; unfoldingscheme=qtci.unfoldingscheme)
     return TensorCrossInterpolation.evaluate(qtci.tt, bitlist)
 end
 
@@ -78,12 +81,20 @@ function quanticscrossinterpolate(
     end
     n = length(xvals)
     R = Int(first(localdimensions))
-    L = n * R
 
-    qf(q) = f(quantics_to_x(q, xvals, unfoldingscheme=unfoldingscheme)...)
+    qlocaldimensions = if unfoldingscheme == UnfoldingSchemes.interleaved
+        fill(2, n * R)
+    else
+        fill(2^n, R)
+    end
+
+    qf = TensorCrossInterpolation.CachedFunction{ValueType}(
+        q -> f(quantics_to_x(q, xvals, unfoldingscheme=unfoldingscheme)...),
+        qlocaldimensions
+    )
     qinitialpivots = index_to_quantics.(initialpivots, R; unfoldingscheme=unfoldingscheme)
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
-        ValueType, qf, fill(2, L), qinitialpivots; kwargs...)
+        ValueType, qf, qlocaldimensions, qinitialpivots; kwargs...)
     return QuanticsTensorCI2{ValueType}(qtt, unfoldingscheme), ranks, errors
 end
 
