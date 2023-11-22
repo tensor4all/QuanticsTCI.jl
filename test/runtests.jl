@@ -1,5 +1,4 @@
 using QuanticsTCI
-using ITensors
 using Test
 using LinearAlgebra
 
