@@ -70,6 +70,7 @@ function quanticscrossinterpolate(
     xvals::AbstractVector{<:AbstractVector},
     initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, length(xvals))];
     unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
+    nrandominitpivot = 5,
     kwargs...
 ) where {ValueType}
     localdimensions = log2.(length.(xvals))
@@ -101,6 +102,15 @@ function quanticscrossinterpolate(
     end
     if !(:partialnesting ∈ keys(kwargs))
         kwargs_[:partialnesting] = false
+    end
+
+    # random initial pivot
+    for _ in 1:nrandominitpivot
+       pivot = [rand(1:d) for d in qlocaldimensions]
+       push!(
+           qinitialpivots,
+           TensorCrossInterpolation.optfirstpivot(qf, qlocaldimensions, pivot)
+       )
     end
 
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
@@ -138,6 +148,7 @@ function quanticscrossinterpolate(
     f,
     xvals::AbstractVector,
     initialpivots::AbstractVector=[1];
+    nrandominitpivot = 5,
     kwargs...
 ) where {ValueType}
     return quanticscrossinterpolate(
@@ -145,5 +156,6 @@ function quanticscrossinterpolate(
         f,
         [xvals],
         [initialpivots];
+        nrandominitpivot=nrandominitpivot,
         kwargs...)
 end
