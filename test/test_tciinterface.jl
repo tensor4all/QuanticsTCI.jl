@@ -1,3 +1,5 @@
+using Random
+
 @testset "quanticscrossinterpolate" begin
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     xvals = range(-3, 2; length=32)
@@ -16,7 +18,9 @@ end
     f(x) = 0.1 * x^2 - pi * x + 2
     g(x) = f(x[1])
     xvals = range(-3, 2; length=128)
+    Random.seed!(1234)
     qttf, ranksf, errorsf = quanticscrossinterpolate(Float64, f, xvals; tolerance=1e-8)
+    Random.seed!(1234)
     qttg, ranksg, errorsg = quanticscrossinterpolate(Float64, g, [xvals]; tolerance=1e-8)
     @test last(errorsf) < 1e-8
     @test last(errorsg) < 1e-8

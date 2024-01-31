@@ -93,8 +93,18 @@ function quanticscrossinterpolate(
         qlocaldimensions
     )
     qinitialpivots = index_to_quantics.(initialpivots, R; unfoldingscheme=unfoldingscheme)
+
+    # For stabity
+    kwargs_ = Dict{Symbol,Any}(kwargs)
+    if !(:nsearchglobalpivot ∈ keys(kwargs))
+        kwargs_[:nsearchglobalpivot] = 5
+    end
+    if !(:partialnesting ∈ keys(kwargs))
+        kwargs_[:partialnesting] = false
+    end
+
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
-        ValueType, qf, qlocaldimensions, qinitialpivots; kwargs...)
+        ValueType, qf, qlocaldimensions, qinitialpivots; kwargs_...)
     return QuanticsTensorCI2{ValueType}(qtt, unfoldingscheme), ranks, errors
 end
 
