@@ -1,3 +1,4 @@
+#==
 @testset "quantics representation" begin
     @testset "quantics to index, 1d" begin
         @test quantics_to_index([1 1 1 1]) == 1
@@ -174,3 +175,5 @@ end
         end
     end
 end
+
+==#

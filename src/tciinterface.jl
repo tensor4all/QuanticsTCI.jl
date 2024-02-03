@@ -1,18 +1,13 @@
 struct QuanticsTensorCI2{ValueType}
     tt::TensorCrossInterpolation.TensorCI2{ValueType}
-    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme
+    grid::QG.Grid
 end
 
 function evaluate(
     qtci::QuanticsTensorCI2{ValueType},
     indices::Union{Array{Int},NTuple{N,Int}}
 )::ValueType where {N,ValueType}
-    R = if qtci.unfoldingscheme == UnfoldingSchemes.interleaved
-        div(length(qtci.tt), length(indices))
-    else
-        length(qtci.tt)
-    end
-    bitlist = index_to_quantics(indices, R; unfoldingscheme=qtci.unfoldingscheme)
+    bitlist = QG.grididx_to_quantics(qtci.grid, Tuple(indices))
     return TensorCrossInterpolation.evaluate(qtci.tt, bitlist)
 end
 
@@ -28,14 +23,6 @@ function (qtci::QuanticsTensorCI2{V})(indices::Int...)::V where {V}
     return evaluate(qtci, indices...)
 end
 
-function quantics_to_x(
-    bitlist::Union{Array{Int},NTuple{N,Int}},
-    xvals::AbstractVector{<:AbstractVector};
-    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.fused
-) where {N}
-    indices = quantics_to_index(bitlist, length(xvals); unfoldingscheme=unfoldingscheme)
-    return [x[i] for (x, i) in zip(xvals, indices)]
-end
 
 @doc raw"""
     function quanticscrossinterpolate(
@@ -68,7 +55,7 @@ function quanticscrossinterpolate(
     ::Type{ValueType},
     f,
     xvals::AbstractVector{<:AbstractVector},
-    initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, length(xvals))];
+    initialpivots::Union{Nothing,AbstractVector{<:AbstractVector}} = nothing;
     unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
     nrandominitpivot = 5,
     kwargs...
@@ -80,8 +67,31 @@ function quanticscrossinterpolate(
     elseif !all(isinteger.(localdimensions))
         throw(ArgumentError("This method only supports grid sizes that are powers of 2."))
     end
-    n = length(xvals)
+
+    n = length(localdimensions)
     R = Int(first(localdimensions))
+    grid = QG.DiscretizedGrid{n}(R, Tuple(minimum.(xvals)), Tuple(maximum.(xvals)); unfoldingscheme=unfoldingscheme, includeendpoint=true)
+
+    return quanticscrossinterpolate(ValueType, f, grid, initialpivots; unfoldingscheme=unfoldingscheme, nrandominitpivot=nrandominitpivot, kwargs...)
+end
+
+
+function quanticscrossinterpolate(
+    ::Type{ValueType},
+    f,
+    grid::QG.DiscretizedGrid{n},
+    initialpivots::Union{Nothing,AbstractVector{<:AbstractVector}} = nothing;
+    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
+    nrandominitpivot = 5,
+    kwargs...
+) where {ValueType,n}
+    R = grid.R
+    
+    if initialpivots === nothing
+        initialpivots = [ones(Int, n)]
+    end
+
+    unfoldingscheme == grid.unfoldingscheme
 
     qlocaldimensions = if unfoldingscheme == UnfoldingSchemes.interleaved
         fill(2, n * R)
@@ -89,11 +99,10 @@ function quanticscrossinterpolate(
         fill(2^n, R)
     end
 
-    qf = TensorCrossInterpolation.CachedFunction{ValueType}(
-        q -> f(quantics_to_x(q, xvals, unfoldingscheme=unfoldingscheme)...),
-        qlocaldimensions
-    )
-    qinitialpivots = index_to_quantics.(initialpivots, R; unfoldingscheme=unfoldingscheme)
+    qf_ = (n == 1 ? q -> f(only(QG.quantics_to_origcoord(grid, q))) : q -> f(QG.quantics_to_origcoord(grid, q)...))
+
+    qf = TensorCrossInterpolation.CachedFunction{ValueType}(qf_, qlocaldimensions)
+    qinitialpivots = [QG.grididx_to_quantics(grid, Tuple(p)) for p in initialpivots]
 
     # For stabity
     kwargs_ = Dict{Symbol,Any}(kwargs)
@@ -115,7 +124,7 @@ function quanticscrossinterpolate(
 
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
         ValueType, qf, qlocaldimensions, qinitialpivots; kwargs_...)
-    return QuanticsTensorCI2{ValueType}(qtt, unfoldingscheme), ranks, errors
+    return QuanticsTensorCI2{ValueType}(qtt, grid), ranks, errors
 end
 
 @doc raw"""
