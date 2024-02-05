@@ -166,3 +166,37 @@ function quanticscrossinterpolate(
         nrandominitpivot=nrandominitpivot,
         kwargs...)
 end
+
+function quanticscrossinterpolate(
+    ::Type{ValueType},
+    f,
+    size::NTuple{d,Int},
+    initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
+    unfoldingscheme=QG.UnfoldingSchemes.interleaved,
+    kwargs...
+) where {ValueType,d}
+    localdimensions = log2.(size)
+    if !allequal(localdimensions)
+        throw(ArgumentError(
+            "This method only supports grids with equal number of points in each direction. If you need a different grid, please use index_to_quantics and quantics_to_index and determine the index ordering yourself."))
+    elseif !all(isinteger.(localdimensions))
+        throw(ArgumentError("This method only supports grid sizes that are powers of 2."))
+    end
+
+    R = Int(first(localdimensions))
+    grid = QG.InherentDiscreteGrid{d}(R; unfoldingscheme=unfoldingscheme)
+    return quanticscrossinterpolate(ValueType, f, grid, initialpivots; kwargs...)
+end
+
+function quanticscrossinterpolate(
+    F::Array{ValueType,d},
+    initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
+    kwargs...
+) where {ValueType,d}
+    return quanticscrossinterpolate(
+        ValueType,
+        (i...) -> F[i...],
+        size(F),
+        initialpivots;
+        kwargs...)
+end
