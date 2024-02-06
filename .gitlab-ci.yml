@@ -42,11 +42,16 @@ cache:
         c, t = get_summary(process_folder())
         using Printf
         @printf "Test coverage %.2f%%\n" 100c / t'
-Julia 1.9:
-  image: julia:1.9
+Julia test:
+  image: julia:${JULIA_VERSION}
   extends:
     - .script
     - .coverage
+  parallel:
+    matrix:
+      - JULIA_VERSION:
+        - "1.9"
+        - "1" # latest stable version
 .doctest:
   script:
     - |
