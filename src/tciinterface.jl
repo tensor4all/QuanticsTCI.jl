@@ -17,7 +17,7 @@ function evaluate(
 end
 
 function evaluate(qtci::QuanticsTensorCI2{V}, indices::Int...)::V where {V}
-    return evaluate(qtci, collect(indices))
+    return evaluate(qtci, collect(indices)::Vector{Int})
 end
 
 function (qtci::QuanticsTensorCI2{V})(indices)::V where {V}
