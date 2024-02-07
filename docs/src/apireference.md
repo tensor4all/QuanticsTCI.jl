@@ -1,5 +1,5 @@
 # Documentation
 
 ```@autodocs
-Modules = [QuanticsTCI, QuanticsTCI.UnfoldingSchemes]
+Modules = [QuanticsTCI]
 ```
