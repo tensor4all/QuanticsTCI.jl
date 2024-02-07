@@ -8,7 +8,7 @@ import LinearAlgebra: rank
 import QuanticsGrids as QG
 import QuanticsGrids: UnfoldingSchemes
 
-export evaluate_mps
+export evaluate
 export quanticscrossinterpolate
 
 include("tciinterface.jl")
