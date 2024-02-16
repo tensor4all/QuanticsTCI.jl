@@ -10,6 +10,7 @@ import QuanticsGrids: UnfoldingSchemes
 
 export evaluate
 export quanticscrossinterpolate
+export UnfoldingSchemes
 
 include("tciinterface.jl")
 
