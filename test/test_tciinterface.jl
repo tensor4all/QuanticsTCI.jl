@@ -12,6 +12,11 @@ import QuanticsGrids as QG
         Float64, f, [xvals, yvals]; unfoldingscheme, tolerance=1e-8)
     @test last(errors) < 1e-8
 
+    cache = cachedata(qtt)
+    for (k, v) in cache
+        @test v ≈ f(k...)
+    end
+
     for (i, x) in enumerate(xvals)
         for (j, y) in enumerate(yvals)
             @test f(x, y) ≈ qtt(i, j)

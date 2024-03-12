@@ -1,6 +1,7 @@
 struct QuanticsTensorCI2{ValueType}
     tt::TensorCrossInterpolation.TensorCI2{ValueType}
     grid::QG.Grid
+    quanticsfunction::TCI.CachedFunction{ValueType}
 end
 
 function evaluate(
@@ -23,6 +24,13 @@ function (qtci::QuanticsTensorCI2{V})(indices::Int...)::V where {V}
     return evaluate(qtci, indices...)
 end
 
+
+function cachedata(qtci::QuanticsTensorCI2{V}) where {V}
+    return Dict(
+            QG.quantics_to_origcoord(qtci.grid, k) => v
+            for (k, v) in TCI.cachedata(qtci.quanticsfunction)
+        )
+end
 
 @doc raw"""
     function quanticscrossinterpolate(
@@ -71,7 +79,7 @@ function quanticscrossinterpolate(
            ? q -> f(only(QG.quantics_to_origcoord(grid, q)))
            : q -> f(QG.quantics_to_origcoord(grid, q)...))
 
-    qf = TensorCrossInterpolation.CachedFunction{ValueType}(qf_, qlocaldimensions)
+    qf = TCI.CachedFunction{ValueType}(qf_, qlocaldimensions)
 
     qinitialpivots = (initialpivots === nothing
                       ? [ones(Int, length(qlocaldimensions))]
@@ -97,7 +105,7 @@ function quanticscrossinterpolate(
 
     qtt, ranks, errors = TensorCrossInterpolation.crossinterpolate2(
         ValueType, qf, qlocaldimensions, qinitialpivots; kwargs_...)
-    return QuanticsTensorCI2{ValueType}(qtt, grid), ranks, errors
+    return QuanticsTensorCI2{ValueType}(qtt, grid, qf), ranks, errors
 end
 
 @doc raw"""
