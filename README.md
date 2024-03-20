@@ -4,87 +4,51 @@
 [![pipeline status](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/pipeline.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
 [![coverage report](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/coverage.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
 
-This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format.
+This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format. It is a small wrapper around [TensorCrossInterpolation.jl](https://gitlab.com/tensors4fields/TensorCrossInterpolation.jl) and [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl) with more convenient functionality intended to cover the most common use cases. For more advanced or unusual use cases, it is likely that you will need to rely on those two libraries directly.
 
 ## Installation
 
----
-
-Until the module is available via `Pkg`, use the following instructions.
-
-1. Clone the repository to some convenient path
-```sh
-$ cd /convenient/path
-$ git clone git@gitlab.com:quanticstci/quanticstci.jl.git
-```
-2. In a julia REPL, tell julia where you put the downloaded repository.
+This module has been registered in the General registry. It can be installed by typing the following in a Julia REPL:
 ```julia
-julia> using Pkg; Pkg.dev("convenient/path/quanticstci.jl")
-```
-3. You should now be able to import the module.
-```julia
-julia> using QuanticsTCI
-```
----
-
-Once the module has been published, the following will install QuanticsTCI.jl:
-
-```julia
-julia> using Pkg; Pkg.add("QuanticsTCI.jl")
+using Pkg; Pkg.add("QuanticsTCI.jl")
 ```
 
 This module depends on:
-- [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl)
-- [ITensors.jl](https://github.com/ITensor/ITensors.jl)
-
-Due to ITensors, Julia 1.6 or newer is required.
+- [TensorCrossInterpolation.jl](https://gitlab.com/tensors4fields/TensorCrossInterpolation.jl)
+- [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl)
 
 ## Usage
 
-The main functionality of this package is in the functions `quantics_to_index` and `index_to_quantics`. These translate between linear and quantics representation. For multivariate functions, you have a choice between the *interleaved* and *fused* representation (see QTCI paper [arXiv:2303.11819](http://arxiv.org/abs/2303.11819)). For the *interleaved* representation with `R` bits in each dimension, use
-```julia
-sigma = index_to_quantics_interleaved([u1, u2, u3], R)
-[u1, u2, u3] = quantics_to_index_interleaved(sigma, n)
-```
-where `n` is the number of dimensions.
+*This section only contains the bare minimum to get you started. More examples, including more advanced use cases, can be found in the [T4F examples repository](https://tensors4fields.gitlab.io/T4FExamples.jl/dev/index.html). For a documentation of the API, see the [package documentation](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html).*
 
-For the *fused* representation, the methods are very similar:
-```julia
-sigma = index_to_quantics_fused([u1, u2, u3], R)
-[u1, u2, u3] = quantics_to_index_fused(sigma, n)
-```
-Further information can be found in the corresponding docstrings.
+The easiest way to construct a quantics tensor train is the `quanticscrossinterpolate` function. For example, the function `f(x, y) = (cos(x) - cos(x - 2y)) * abs(x + y)` can be interpolated as follows.
 
-For convenience, function wrappers are available. If `f` is a function of a single parameter, a quantics version `qf` can be obtained by
 ```julia
-qf = QuanticsFunction{Float64}(f)
+using QuanticsTCI
+f(x, y) = (cos(x) - cos(x - 2y)) * abs(x + y)
+xvals = range(-6, 6; length=256)
+yvals = range(-12, 12; length=256)
+qtt, ranks, errors = quanticscrossinterpolate(Float64, f, [xvals, yvals]; tolerance=1e-8)
 ```
-Note that the return type of `f` (`Float64` in this case) has to be specified. `qf` can be called like a normal function, and takes a list of quantics indices as its only parameter.
+The output object `qtt` now represents a quantics tensor train. It can then be evaluated a function of indices enumerating the `xvals` and `yvals` arrays:
 ```julia
-value = f([1, 2, 1, 1, 2, 1])
+@show qttvalue = qtt(212, 92)
+@show truevalue = f(xvals[212], yvals[92])
+@show error = abs(qttvalue - truevalue)
 ```
-For multivariate functions `f`, use `QuanticsFunctionInterleaved` or `QuanticsFunctionFused`. In addition to `f`, the number of dimensions `ndims` has to be specified:
-```julia
-qfinterleaved = QuanticsFunctionInterleaved{Float64}(f, ndims)
-qffused = QuanticsFunctionFused{Float64}(f, ndims)
+Output:
 ```
-All of these objects are suitable for passing to the `TensorCrossInterpolation.crossinterpolate` function. A QTCI of a function `f` can be obtained like this:
-```julia
-R = 5
-f(u) = 1 / (1 + u' * u)
-qfinterleaved = QuanticsFunctionInterleaved{Float64}(f, 4)
-qtci, ranks, errors = TCI.crossinterpolate(Float64, qfinterleaved, fill(2, 4 * R))
-qtt = TCI.TensorTrain(qtci)
-value = f([1, 2, 3, 4])
-println("Exact value: $value")
-qttapprox = qtt(index_to_quantics_interleaved([1, 2, 3, 4], R))
-println("QTT approximated value: $qttapprox")
+qttvalue = qtt(212, 92) = -0.2525252152789011
+truevalue = f(xvals[212], yvals[92]) = -0.2525252152789314
+error = abs(qttvalue - truevalue) = 3.0309088572266774e-14
 ```
-Note that the resulting QTCI / QTT takes parameters in quantics form.
-A convenience function that encapsulates the above code block in a single call is being worked on.
+The output shows that the approximation has an error of only `3 * 10^-14` at `[212, 92]`.
+
+This example is continued in the [package documentation](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html), and more examples can be found in the [T4F examples repository](https://tensors4fields.gitlab.io/T4FExamples.jl/dev/index.html).
 
 ## Related libraries
 - [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl) to calculate tensor cross interpolations.
+- [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl) for conversion between quantics and direct representations. More advanced use cases can be implemented directly using this library.
 - [ITensors.jl](https://github.com/ITensor/ITensors.jl) for MPS / MPO algorithms.
 
 ## References
