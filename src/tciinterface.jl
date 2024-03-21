@@ -90,8 +90,8 @@ function quanticscrossinterpolate(
     if !(:nsearchglobalpivot ∈ keys(kwargs))
         kwargs_[:nsearchglobalpivot] = 5
     end
-    if !(:partialnesting ∈ keys(kwargs))
-        kwargs_[:partialnesting] = false
+    if !(:strictlynested ∈ keys(kwargs))
+        kwargs_[:strictlynested] = false
     end
 
     # random initial pivot
