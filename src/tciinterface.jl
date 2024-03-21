@@ -1,5 +1,5 @@
 struct QuanticsTensorCI2{ValueType}
-    tci2::TensorCrossInterpolation.TensorCI2{ValueType}
+    tci::TensorCrossInterpolation.TensorCI2{ValueType}
     grid::QG.Grid
     quanticsfunction::TCI.CachedFunction{ValueType}
 end
@@ -9,7 +9,7 @@ function evaluate(
     indices::Union{Array{Int},NTuple{N,Int}}
 )::ValueType where {N,ValueType}
     bitlist = QG.grididx_to_quantics(qtci.grid, Tuple(indices))
-    return TensorCrossInterpolation.evaluate(qtci.tci2, bitlist)
+    return TensorCrossInterpolation.evaluate(qtci.tci, bitlist)
 end
 
 function evaluate(qtci::QuanticsTensorCI2{V}, indices::Int...)::V where {V}
