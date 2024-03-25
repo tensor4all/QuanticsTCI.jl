@@ -1,10 +1,7 @@
 using Random
 import QuanticsGrids as QG
 
-@testset "quanticscrossinterpolate" for unfoldingscheme in [
-    QG.UnfoldingSchemes.interleaved,
-    QG.UnfoldingSchemes.fused
-]
+@testset "quanticscrossinterpolate" for unfoldingscheme in [:interleaved, :fused]
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     xvals = range(-3, 2; length=32)
     yvals = range(-17, 12; length=32)
@@ -44,10 +41,7 @@ end
     end
 end
 
-@testset "quanticscrossinterpolate with DiscretizedGrid" for unfoldingscheme in [
-    QG.UnfoldingSchemes.interleaved,
-    QG.UnfoldingSchemes.fused
-]
+@testset "quanticscrossinterpolate with DiscretizedGrid" for unfoldingscheme in [:interleaved, :fused]
     R = 5
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     grid = QG.DiscretizedGrid{2}(
@@ -67,10 +61,7 @@ end
     end
 end
 
-@testset "quanticscrossinterpolate with InherentDiscreteGrid" for unfoldingscheme in [
-    QG.UnfoldingSchemes.interleaved,
-    QG.UnfoldingSchemes.fused
-]
+@testset "quanticscrossinterpolate with InherentDiscreteGrid" for unfoldingscheme in [:interleaved, :fused]
     R = 3
     Random.seed!(1234)
     A = rand(2^R, 2^R, 2^R)

@@ -69,7 +69,7 @@ function quanticscrossinterpolate(
 ) where {ValueType,n}
     R = grid.R
 
-    qlocaldimensions = if grid.unfoldingscheme == UnfoldingSchemes.interleaved
+    qlocaldimensions = if grid.unfoldingscheme === :interleaved
         fill(2, n * R)
     else
         fill(2^n, R)
@@ -114,7 +114,7 @@ end
         f,
         xvals::AbstractVector{<:AbstractVector},
         initialpivots::Union{Nothing,AbstractVector{<:AbstractVector}}=nothing;
-        unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
+        unfoldingscheme::Symbol=:interleaved,
         nrandominitpivot=5,
         kwargs...
     ) where {ValueType}
@@ -130,7 +130,7 @@ function quanticscrossinterpolate(
     f,
     xvals::AbstractVector{<:AbstractVector},
     initialpivots::Union{Nothing,AbstractVector{<:AbstractVector}}=nothing;
-    unfoldingscheme::UnfoldingSchemes.UnfoldingScheme=UnfoldingSchemes.interleaved,
+    unfoldingscheme::Symbol=:interleaved,
     nrandominitpivot=5,
     kwargs...
 ) where {ValueType}
@@ -183,7 +183,7 @@ end
         f,
         size::NTuple{d,Int},
         initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-        unfoldingscheme=QG.UnfoldingSchemes.interleaved,
+        unfoldingscheme::Symbol=:interleaved,
         kwargs...
     ) where {ValueType,d}
 
@@ -194,7 +194,7 @@ function quanticscrossinterpolate(
     f,
     size::NTuple{d,Int},
     initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-    unfoldingscheme=QG.UnfoldingSchemes.interleaved,
+    unfoldingscheme::Symbol=:interleaved,
     kwargs...
 ) where {ValueType,d}
     localdimensions = log2.(size)
@@ -216,7 +216,7 @@ end
         f,
         size::NTuple{d,Int},
         initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-        unfoldingscheme=QG.UnfoldingSchemes.interleaved,
+        unfoldingscheme::Symbol=:interleaved,
         kwargs...
     ) where {ValueType,d}
 

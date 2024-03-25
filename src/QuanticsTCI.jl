@@ -7,11 +7,9 @@ import TensorCrossInterpolation as TCI
 import LinearAlgebra: rank
 
 import QuanticsGrids as QG
-import QuanticsGrids: UnfoldingSchemes
 
 export evaluate
 export quanticscrossinterpolate
-export UnfoldingSchemes
 export cachedata
 
 include("tciinterface.jl")
