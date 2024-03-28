@@ -9,7 +9,7 @@ QuanticsGrids = "634c7f73-3e90-4749-a1bd-001b8efc642d"
 TensorCrossInterpolation = "b261b2ec-6378-4871-b32e-9173bb050604"
 
 [compat]
-QuanticsGrids = "0.2"
+QuanticsGrids = "0.3"
 TensorCrossInterpolation = "0.9"
 julia = "1.6"
 
