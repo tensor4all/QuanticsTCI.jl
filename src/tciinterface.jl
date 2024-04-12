@@ -56,8 +56,8 @@ Arguments:
 - `ValueType` is the return type of `f`. Automatic inference is too error-prone.
 - `f` is the function to be interpolated. `f` may take multiple arguments. The return type should be `ValueType`.
 - `grid` is a `Grid{n}` object from [`QuanticsGrids.jl`](https://gitlab.com/tensors4fields/QuanticsGrids.jl) that describes a d-dimensional grid of discrete points indexed by binary digits. To avoid constructing a grid explicitly, use one of the other overloads.
-- `initialpivots` is a vector of pivots to be used for initialization. Default: `[[1, 1, ...]]`.
-- `unfoldingscheme` determines whether the *interleaved* or *fused* representation is used. (See the [quantics TCI paper](http://arxiv.org/abs/2303.11819).)
+- `initialpivots` is a vector of pivots to be used for initialization.
+- `nrandominitpivot` determines how many random pivots should be used for initialization if no initial pivot is given.
 
 All other arguments are forwareded to `crossinterpolate2`. Most importantly:
 - `tolerance::Float64` is a float specifying the target tolerance for the interpolation. Default: `1e-8`.
@@ -77,7 +77,7 @@ function quanticscrossinterpolate(
 ) where {ValueType,n}
     R = grid.R
 
-    qlocaldimensions = if grid.unfoldingscheme == :interleaved
+    qlocaldimensions = if grid.unfoldingscheme === :interleaved
         fill(2, n * R)
     else
         fill(2^n, R)
@@ -191,7 +191,7 @@ end
         f,
         size::NTuple{d,Int},
         initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-        unfoldingscheme=:interleaved,
+        unfoldingscheme::Symbol=:interleaved,
         kwargs...
     ) where {ValueType,d}
 
@@ -202,7 +202,7 @@ function quanticscrossinterpolate(
     f,
     size::NTuple{d,Int},
     initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-    unfoldingscheme=:interleaved,
+    unfoldingscheme::Symbol=:interleaved,
     kwargs...
 ) where {ValueType,d}
     localdimensions = log2.(size)
@@ -224,7 +224,7 @@ end
         f,
         size::NTuple{d,Int},
         initialpivots::AbstractVector{<:AbstractVector}=[ones(Int, d)];
-        unfoldingscheme=:interleaved,
+        unfoldingscheme::Symbol=:interleaved,
         kwargs...
     ) where {ValueType,d}
 
