@@ -23,7 +23,7 @@ import QuanticsGrids as QG
         end
     end
 
-    @test sum(qtt) ≈ sum(f.(xvals, yvals'))
+    @test sum(qtt) ≈ sum(f.(xvals, transpose(yvals)))
 end
 
 @testset "quanticscrossinterpolate, 1d overload" begin
