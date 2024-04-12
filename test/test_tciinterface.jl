@@ -1,7 +1,10 @@
 using Random
 import QuanticsGrids as QG
 
-@testset "quanticscrossinterpolate" for unfoldingscheme in [:interleaved, :fused]
+@testset "quanticscrossinterpolate" for unfoldingscheme in [
+    :interleaved,
+    :fused
+]
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     xvals = range(-3, 2; length=32)
     yvals = range(-17, 12; length=32)
@@ -19,6 +22,8 @@ import QuanticsGrids as QG
             @test f(x, y) ≈ qtt(i, j)
         end
     end
+
+    @test sum(qtt) ≈ sum(f.(xvals, transpose(yvals)))
 end
 
 @testset "quanticscrossinterpolate, 1d overload" begin
@@ -41,7 +46,10 @@ end
     end
 end
 
-@testset "quanticscrossinterpolate with DiscretizedGrid" for unfoldingscheme in [:interleaved, :fused]
+@testset "quanticscrossinterpolate with DiscretizedGrid" for unfoldingscheme in [
+    :interleaved,
+    :fused
+]
     R = 5
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     grid = QG.DiscretizedGrid{2}(
@@ -61,7 +69,10 @@ end
     end
 end
 
-@testset "quanticscrossinterpolate with InherentDiscreteGrid" for unfoldingscheme in [:interleaved, :fused]
+@testset "quanticscrossinterpolate with InherentDiscreteGrid" for unfoldingscheme in [
+    :interleaved,
+    :fused
+]
     R = 3
     Random.seed!(1234)
     A = rand(2^R, 2^R, 2^R)
@@ -87,4 +98,14 @@ end
     for i in CartesianIndices(size(A))
         @test A[i] ≈ qtt(Tuple(i))
     end
+end
+
+@testset "quanticscrossinterpolate for integrals" begin
+    R = 40
+    xgrid = QG.DiscretizedGrid{1}(R, 0, 1)
+    F(x) = sin(1/(x^2 + 0.01))
+    f(x) = -2*x * cos(1/(x^2 + 0.01)) / (x^2 + 0.01)^2
+    tci, ranks, errors = quanticscrossinterpolate(Float64, f, xgrid; tolerance=1e-13)
+    @test sum(tci) * QG.grid_step(xgrid) ≈ F(1) - F(0)
+    @test integral(tci) ≈ F(1) - F(0)
 end

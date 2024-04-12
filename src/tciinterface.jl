@@ -24,6 +24,14 @@ function (qtci::QuanticsTensorCI2{V})(indices::Int...)::V where {V}
     return evaluate(qtci, indices...)
 end
 
+function sum(qtci::QuanticsTensorCI2{V})::V where {V}
+    return sum(qtci.tci)
+end
+
+function integral(qtci::QuanticsTensorCI2{V})::V where {V}
+    return sum(qtci) * prod(QG.grid_step(qtci.grid))
+end
+
 
 function cachedata(qtci::QuanticsTensorCI2{V}) where {V}
     return Dict(
