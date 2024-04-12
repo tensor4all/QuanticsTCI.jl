@@ -22,6 +22,8 @@ import QuanticsGrids as QG
             @test f(x, y) ≈ qtt(i, j)
         end
     end
+
+    @test sum(qtt) ≈ sum(f.(xvals, transpose(yvals)))
 end
 
 @testset "quanticscrossinterpolate, 1d overload" begin
@@ -96,4 +98,14 @@ end
     for i in CartesianIndices(size(A))
         @test A[i] ≈ qtt(Tuple(i))
     end
+end
+
+@testset "quanticscrossinterpolate for integrals" begin
+    R = 40
+    xgrid = QG.DiscretizedGrid{1}(R, 0, 1)
+    F(x) = sin(1/(x^2 + 0.01))
+    f(x) = -2*x * cos(1/(x^2 + 0.01)) / (x^2 + 0.01)^2
+    tci, ranks, errors = quanticscrossinterpolate(Float64, f, xgrid; tolerance=1e-13)
+    @test sum(tci) * QG.grid_step(xgrid) ≈ F(1) - F(0)
+    @test integral(tci) ≈ F(1) - F(0)
 end
