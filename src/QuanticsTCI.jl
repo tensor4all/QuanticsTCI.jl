@@ -11,5 +11,6 @@ export quanticscrossinterpolate, evaluate, sum, integral
 export cachedata
 
 include("tciinterface.jl")
+include("fouriertransform.jl")
 
 end
