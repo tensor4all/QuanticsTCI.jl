@@ -18,7 +18,7 @@ This module depends on:
 
 ## Usage
 
-*This section only contains the bare minimum to get you started. More examples, including more advanced use cases, can be found in the [T4F examples repository](https://tensors4fields.gitlab.io/T4FExamples.jl/dev/index.html). For a documentation of the API, see the [package documentation](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html).*
+*This section only contains the bare minimum to get you started. More examples, including more advanced use cases, can be found in the [the tensor4all website](https://tensor4all.github.io). For a documentation of the API, see the [package documentation](https://tensor4all.github.io/QuanticsTCI.jl/dev/index.html).*
 
 The easiest way to construct a quantics tensor train is the `quanticscrossinterpolate` function. For example, the function `f(x, y) = (cos(x) - cos(x - 2y)) * abs(x + y)` can be interpolated as follows.
 
@@ -43,10 +43,10 @@ error = abs(qttvalue - truevalue) = 3.0309088572266774e-14
 ```
 The output shows that the approximation has an error of only `3 * 10^-14` at `[212, 92]`.
 
-This example is continued in the [package documentation](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html), and more examples can be found in the [T4F examples repository](https://tensors4fields.gitlab.io/T4FExamples.jl/dev/index.html).
+This example is continued in the [package documentation](https://tensor4all.github.io/QuanticsTCI.jl/dev/index.html), and more examples can be found in the [the tensor4all website](https://tensor4all.github.io). 
 
 ## Related libraries
-- [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl) to calculate tensor cross interpolations.
+- [TensorCrossInterpolation.jl](https://github.com/tensor4all/TensorCrossInterpolation.jl) to calculate tensor cross interpolations.
 - [QuanticsGrids.jl](https://github.com/tensor4all/QuanticsGrids.jl) for conversion between quantics and direct representations. More advanced use cases can be implemented directly using this library.
 - [ITensors.jl](https://github.com/ITensor/ITensors.jl) for MPS / MPO algorithms.
 
