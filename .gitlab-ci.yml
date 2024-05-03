@@ -9,7 +9,7 @@ before_script:
         RegistrySpec(url = "https://github.com/JuliaRegistries/General.git")
       )
       Pkg.Registry.add(
-        RegistrySpec(url = "https://gitlab.com/tensors4fields/tensors4fieldsregistry.git")
+        RegistrySpec(url = "https://github.com/tensor4all/tensors4fieldsregistry.git")
       )'
 
 variables:

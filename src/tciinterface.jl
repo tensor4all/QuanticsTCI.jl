@@ -55,7 +55,7 @@ Interpolate a function ``f(\mathbf{x})`` as a quantics tensor train. The tensor 
 Arguments:
 - `ValueType` is the return type of `f`. Automatic inference is too error-prone.
 - `f` is the function to be interpolated. `f` may take multiple arguments. The return type should be `ValueType`.
-- `grid` is a `Grid{n}` object from [`QuanticsGrids.jl`](https://gitlab.com/tensors4fields/QuanticsGrids.jl) that describes a d-dimensional grid of discrete points indexed by binary digits. To avoid constructing a grid explicitly, use one of the other overloads.
+- `grid` is a `Grid{n}` object from [`QuanticsGrids.jl`](https://github.com/tensor4all/QuanticsGrids.jl) that describes a d-dimensional grid of discrete points indexed by binary digits. To avoid constructing a grid explicitly, use one of the other overloads.
 - `initialpivots` is a vector of pivots to be used for initialization.
 - `nrandominitpivot` determines how many random pivots should be used for initialization if no initial pivot is given.
 

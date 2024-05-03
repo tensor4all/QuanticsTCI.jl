@@ -1,10 +1,9 @@
 # QuanticsTCI
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensors4fields.gitlab.io/quanticstci.jl/dev/index.html)
-[![pipeline status](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/pipeline.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
-[![coverage report](https://gitlab.com/tensors4fields/quanticstci.jl/badges/main/coverage.svg)](https://gitlab.com/tensors4fields/quanticstci.jl/-/commits/main)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://tensor4all.github.io/QuanticsTCI.jl/dev)
+[![CI](https://github.com/tensor4all/QuanticsTCI.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/tensor4all/QuanticsTCI.jl/actions/workflows/CI.yml)
 
-This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format. It is a small wrapper around [TensorCrossInterpolation.jl](https://gitlab.com/tensors4fields/TensorCrossInterpolation.jl) and [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl) with more convenient functionality intended to cover the most common use cases. For more advanced or unusual use cases, it is likely that you will need to rely on those two libraries directly.
+This module contains utilities for interpolations of functions in the quantics TCI / quantics tensor train (QTT) format. It is a small wrapper around [TensorCrossInterpolation.jl](https://github.com/tensor4all/TensorCrossInterpolation.jl) and [QuanticsGrids.jl](https://github.com/tensor4all/QuanticsGrids.jl) with more convenient functionality intended to cover the most common use cases. For more advanced or unusual use cases, it is likely that you will need to rely on those two libraries directly.
 
 ## Installation
 
@@ -14,8 +13,8 @@ using Pkg; Pkg.add("QuanticsTCI.jl")
 ```
 
 This module depends on:
-- [TensorCrossInterpolation.jl](https://gitlab.com/tensors4fields/TensorCrossInterpolation.jl)
-- [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl)
+- [TensorCrossInterpolation.jl](https://github.com/tensor4all/TensorCrossInterpolation.jl)
+- [QuanticsGrids.jl](https://github.com/tensor4all/QuanticsGrids.jl)
 
 ## Usage
 
@@ -48,7 +47,7 @@ This example is continued in the [package documentation](https://tensors4fields.
 
 ## Related libraries
 - [TensorCrossInterpolation.jl](https://gitlab.com/quanticstci/tensorcrossinterpolation.jl) to calculate tensor cross interpolations.
-- [QuanticsGrids.jl](https://gitlab.com/tensors4fields/QuanticsGrids.jl) for conversion between quantics and direct representations. More advanced use cases can be implemented directly using this library.
+- [QuanticsGrids.jl](https://github.com/tensor4all/QuanticsGrids.jl) for conversion between quantics and direct representations. More advanced use cases can be implemented directly using this library.
 - [ITensors.jl](https://github.com/ITensor/ITensors.jl) for MPS / MPO algorithms.
 
 ## References
