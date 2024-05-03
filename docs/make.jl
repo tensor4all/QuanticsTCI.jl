@@ -17,3 +17,8 @@ makedocs(;
         "Home" => "index.md",
         "API Reference" => "apireference.md",
     ])
+
+deploydocs(;
+    repo="github.com/tensor4all/QuanticsTCI.jl.git",
+    devbranch="main",
+)
