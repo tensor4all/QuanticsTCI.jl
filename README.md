@@ -51,4 +51,4 @@ This example is continued in the [package documentation](https://tensor4all.gith
 - [ITensors.jl](https://github.com/ITensor/ITensors.jl) for MPS / MPO algorithms.
 
 ## References
-- M. K. Ritter, Y. N. Fernández, M. Wallerberger, J. von Delft, H. Shinaoka, and X. Waintal, *Quantics Tensor Cross Interpolation for High-Resolution, Parsimonious Representations of Multivariate Functions in Physics and Beyond*, [arXiv:2303.11819](http://arxiv.org/abs/2303.11819).
+- M. K. Ritter, Y. N. Fernández, M. Wallerberger, J. von Delft, H. Shinaoka, and X. Waintal, *Quantics Tensor Cross Interpolation for High-Resolution, Parsimonious Representations of Multivariate Functions in Physics and Beyond*, [arXiv:2303.11819](http://arxiv.org/abs/2303.11819), [Phys. Rev. Lett. 132, 056501 (2024)](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.132.056501).
