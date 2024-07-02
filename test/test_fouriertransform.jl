@@ -12,8 +12,8 @@ import Random
     fq(q) = fm((QG.quantics_to_index_fused(q)[1] - 1) / 2^big(R))
 
     qtci, = TCI.crossinterpolate2(ComplexF64, fq, fill(2, R); tolerance=1e-14)
-    fouriertt = QTCI.quanticsfouriertto(R) / 2^big(R)
-    qtcif = TCI.contract(qtci, fouriertt)
+    fouriertt = QTCI.quanticsfouriermpo(R; normalize=false) / 2^big(R)
+    qtcif = TCI.contract(fouriertt, qtci)
 
     for i in 1:min(r, 2^big(R))
         q = QG.index_to_quantics(i, numdigits=R)
