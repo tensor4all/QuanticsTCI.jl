@@ -42,7 +42,7 @@ end
         tolerance::Float64=1e-14,
         K::Int=25,
         method::Symbol=:SVD,
-        normalize::Bool=false
+        normalize::Bool=true
     )::TCI.TensorTrain{ComplexF64}
 
 Generate a quantics Fourier transform operator in tensor train form. When contracted with a quantics tensor train ``F_{\boldsymbol{\sigma}}`` representing a function, the result will be the fourier transform of the function in quantics tensor train form, ``\tilde{F}_{\boldsymbol{\sigma}'} = \sum_{\boldsymbol{\sigma}} F_{\boldsymbol{\sigma}} \exp(-2\pi i (k_{\boldsymbol{\sigma'}}-1) (m_{\boldsymbol{\sigma}} - 1)/M)``, where ``k_{\boldsymbol{\sigma}} = \sum_{\ell=1}^R 2^{R-\ell} \sigma_\ell``, ``m_{\boldsymbol{\sigma}'} = \sum_{\ell=1}^R 2^{R-\ell} \sigma'_\ell``, and ``M=2^R``.
