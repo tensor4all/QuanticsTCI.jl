@@ -8,7 +8,7 @@ import LinearAlgebra: rank
 import Base: sum
 
 export quanticscrossinterpolate, evaluate, sum, integral
-export cachedata
+export cachedata, quanticsfouriermpo
 
 include("tciinterface.jl")
 include("fouriertransform.jl")
