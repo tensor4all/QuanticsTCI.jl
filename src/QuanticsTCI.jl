@@ -12,5 +12,6 @@ export cachedata, quanticsfouriermpo
 
 include("tciinterface.jl")
 include("fouriertransform.jl")
+include("derivative.jl")
 
 end
