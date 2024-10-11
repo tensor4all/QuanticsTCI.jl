@@ -40,6 +40,19 @@ function cachedata(qtci::QuanticsTensorCI2{V}) where {V}
         )
 end
 
+struct FunctionWithGrid{F <: Function, G <: QG.Grid} <: Function
+    f::F
+    grid::G
+end
+
+function (t::FunctionWithGrid{F, <: QG.Grid{n}})(q) where {F, n}
+    if n == 1
+        return t.f(only(QG.quantics_to_origcoord(t.grid, q)))
+    else
+        return t.f(QG.quantics_to_origcoord(t.grid, q)...)
+    end
+end
+
 @doc raw"""
     function quanticscrossinterpolate(
         ::Type{ValueType},
@@ -83,12 +96,9 @@ function quanticscrossinterpolate(
         fill(2^n, R)
     end
 
-    qf_ = (n == 1
-           ? q -> f(only(QG.quantics_to_origcoord(grid, q)))
-           : q -> f(QG.quantics_to_origcoord(grid, q)...))
+    qf_ = FunctionWithGrid(f, grid)
 
     qf = TCI.CachedFunction{ValueType}(qf_, qlocaldimensions)
-
     qinitialpivots = (initialpivots === nothing
                       ? [ones(Int, length(qlocaldimensions))]
                       : [QG.grididx_to_quantics(grid, Tuple(p)) for p in initialpivots])
