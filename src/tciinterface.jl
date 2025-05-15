@@ -87,7 +87,22 @@ function quanticscrossinterpolate(
            ? q -> f(only(QG.quantics_to_origcoord(grid, q)))
            : q -> f(QG.quantics_to_origcoord(grid, q)...))
 
-    qf = TCI.CachedFunction{ValueType}(qf_, qlocaldimensions)
+    maxlinearindex = prod(BigInt.(qlocaldimensions))
+    if maxlinearindex < typemax(UInt256)
+        keytype = UInt256
+    elseif maxlinearindex < typemax(UInt512)
+        keytype = UInt512
+    elseif maxlinearindex < typemax(UInt1024)
+        keytype = UInt1024
+    elseif maxlinearindex < typemax(MyUInt2048)
+        keytype = MyUInt2048
+    else
+        keytype = BigInt
+    end
+    if keytype === BigInt
+        @warn "Using BigInt as key type. This will lead to significant memory usage and performance degradation."
+    end
+    qf = TCI.CachedFunction{ValueType, keytype}(qf_, qlocaldimensions)
 
     qinitialpivots = (initialpivots === nothing
                       ? [ones(Int, length(qlocaldimensions))]

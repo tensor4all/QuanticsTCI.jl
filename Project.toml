@@ -4,20 +4,22 @@ authors = ["Ritter.Marc <Ritter.Marc@physik.uni-muenchen.de>, Hiroshi Shinaoka <
 version = "0.7.0"
 
 [deps]
+BitIntegers = "c3b6d118-76ef-56ca-8cc7-ebb389d030a1"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 QuanticsGrids = "634c7f73-3e90-4749-a1bd-001b8efc642d"
 TensorCrossInterpolation = "b261b2ec-6378-4871-b32e-9173bb050604"
 
 [compat]
+BitIntegers = "0.3.5"
 QuanticsGrids = "0.3"
-TensorCrossInterpolation = "0.9"
+TensorCrossInterpolation = "0.9.16"
 julia = "1.6"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
