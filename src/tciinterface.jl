@@ -6,8 +6,8 @@ end
 
 function evaluate(
     qtci::QuanticsTensorCI2{ValueType},
-    indices::Union{Array{Int},NTuple{N,Int}}
-)::ValueType where {N,ValueType}
+    indices::Union{Array{Int},Tuple{Vararg{Int}}}
+)::ValueType where {ValueType}
     bitlist = QG.grididx_to_quantics(qtci.grid, Tuple(indices))
     return TensorCrossInterpolation.evaluate(qtci.tci, bitlist)
 end
@@ -35,9 +35,9 @@ end
 
 function cachedata(qtci::QuanticsTensorCI2{V}) where {V}
     return Dict(
-            QG.quantics_to_origcoord(qtci.grid, k) => v
-            for (k, v) in TCI.cachedata(qtci.quanticsfunction)
-        )
+        QG.quantics_to_origcoord(qtci.grid, k) => v
+        for (k, v) in TCI.cachedata(qtci.quanticsfunction)
+    )
 end
 
 @doc raw"""
@@ -75,13 +75,15 @@ function quanticscrossinterpolate(
     nrandominitpivot=5,
     kwargs...
 ) where {ValueType,n}
-    R = grid.R
+    # R = grid.R
 
-    qlocaldimensions = if grid.unfoldingscheme === :interleaved
-        fill(2, n * R)
-    else
-        fill(2^n, R)
-    end
+    qlocaldimensions = QG.localdimensions(grid)
+    # if grid.unfoldingscheme === :interleaved
+    #     fill(2, n * R)
+    # else
+    #     fill(2^n, R)
+    # end
+
 
     qf_ = (n == 1
            ? q -> f(only(QG.quantics_to_origcoord(grid, q)))
@@ -102,7 +104,7 @@ function quanticscrossinterpolate(
     if keytype === BigInt
         @warn "Using BigInt as key type. This will lead to significant memory usage and performance degradation."
     end
-    qf = TCI.CachedFunction{ValueType, keytype}(qf_, qlocaldimensions)
+    qf = TCI.CachedFunction{ValueType,keytype}(qf_, qlocaldimensions)
 
     qinitialpivots = (initialpivots === nothing
                       ? [ones(Int, length(qlocaldimensions))]
@@ -158,18 +160,14 @@ function quanticscrossinterpolate(
     kwargs...
 ) where {ValueType}
     localdimensions = log2.(length.(xvals))
-    if !allequal(localdimensions)
-        throw(ArgumentError(
-            "This method only supports grids with equal number of points in each direction. If you need a different grid, please use index_to_quantics and quantics_to_index and determine the index ordering yourself."))
-    elseif !all(isinteger.(localdimensions))
+    if !all(isinteger.(localdimensions))
         throw(ArgumentError("This method only supports grid sizes that are powers of 2."))
     end
 
-    n = length(localdimensions)
-    R = Int(first(localdimensions))
-    grid = QG.DiscretizedGrid{n}(R, Tuple(minimum.(xvals)), Tuple(maximum.(xvals)); unfoldingscheme=unfoldingscheme, includeendpoint=true)
+    R = Tuple(Int.(localdimensions))
+    grid = QG.DiscretizedGrid(R, Tuple(minimum.(xvals)), Tuple(maximum.(xvals)); unfoldingscheme, includeendpoint=true)
 
-    return quanticscrossinterpolate(ValueType, f, grid, initialpivots; nrandominitpivot=nrandominitpivot, kwargs...)
+    return quanticscrossinterpolate(ValueType, f, grid, initialpivots; nrandominitpivot, kwargs...)
 end
 
 @doc raw"""
@@ -221,14 +219,11 @@ function quanticscrossinterpolate(
     kwargs...
 ) where {ValueType,d}
     localdimensions = log2.(size)
-    if !allequal(localdimensions)
-        throw(ArgumentError(
-            "This method only supports grids with equal number of points in each direction. If you need a different grid, please use index_to_quantics and quantics_to_index and determine the index ordering yourself."))
-    elseif !all(isinteger.(localdimensions))
+    if !all(isinteger.(localdimensions))
         throw(ArgumentError("This method only supports grid sizes that are powers of 2."))
     end
 
-    R = Int(first(localdimensions))
+    R = Tuple(Int.(localdimensions))
     grid = QG.InherentDiscreteGrid{d}(R; unfoldingscheme=unfoldingscheme)
     return quanticscrossinterpolate(ValueType, f, grid, initialpivots; kwargs...)
 end
