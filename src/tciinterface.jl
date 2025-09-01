@@ -77,7 +77,7 @@ function quanticscrossinterpolate(
 ) where {ValueType,n}
     R = grid.R
 
-    qlocaldimensions = if grid.unfoldingscheme === :interleaved
+    qlocaldimensions = if grid.unfoldingscheme === :interleaved || grid.unfoldingscheme === :serial || grid.unfoldingscheme === :meander
         fill(2, n * R)
     else
         fill(2^n, R)
