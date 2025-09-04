@@ -3,7 +3,9 @@ import QuanticsGrids as QG
 
 @testset "quanticscrossinterpolate" for unfoldingscheme in [
     :interleaved,
-    :fused
+    :fused,
+    :serial,
+    :meander
 ]
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
     xvals = range(-3, 2; length=32)
@@ -48,7 +50,9 @@ end
 
 @testset "quanticscrossinterpolate with DiscretizedGrid" for unfoldingscheme in [
     :interleaved,
-    :fused
+    :fused,
+    :serial,
+    :meander
 ]
     R = 5
     f(x, y) = 0.1 * x^2 + 0.01 * y^3 - pi * x * y + 5
@@ -71,7 +75,9 @@ end
 
 @testset "quanticscrossinterpolate with InherentDiscreteGrid" for unfoldingscheme in [
     :interleaved,
-    :fused
+    :fused,
+    :serial,
+    :meander
 ]
     R = 3
     Random.seed!(1234)
