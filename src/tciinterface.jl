@@ -75,13 +75,7 @@ function quanticscrossinterpolate(
     nrandominitpivot=5,
     kwargs...
 ) where {ValueType,n}
-    R = grid.R
-
-    qlocaldimensions = if grid.unfoldingscheme === :interleaved
-        fill(2, n * R)
-    else
-        fill(2^n, R)
-    end
+    qlocaldimensions = QG.localdimensions(grid)
 
     qf_ = (n == 1
            ? q -> f(only(QG.quantics_to_origcoord(grid, q)))
