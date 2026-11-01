@@ -59,6 +59,8 @@ Arguments:
 - `initialpivots` is a vector of pivots to be used for initialization.
 - `nrandominitpivot` determines how many random pivots should be used for initialization if no initial pivot is given.
 
+The `unfoldingscheme` of `grid` (e.g. `:interleaved`, `:fused`, `:serial` or `:meander`) is resolved by QuanticsGrids itself: the local dimensions of the quantics tensor train are taken from `QuanticsGrids.localdimensions(grid)`, so every unfolding scheme supported by the installed QuanticsGrids version can be used here without further changes.
+
 All other arguments are forwareded to `crossinterpolate2`. Most importantly:
 - `tolerance::Float64` is a float specifying the target tolerance for the interpolation. Default: `1e-8`.
 - `pivottolerance::Float64` is a float that specifies the tolerance for adding new pivots, i.e. the truncation of tensor train bonds. It should be <= tolerance, otherwise convergence may be impossible. Default: `tolerance`.
