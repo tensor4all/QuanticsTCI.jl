@@ -17,5 +17,6 @@ BitIntegers.@define_integers 2048 MyInt2048 MyUInt2048
 
 include("tciinterface.jl")
 include("fouriertransform.jl")
+include("derivative.jl")
 
 end
